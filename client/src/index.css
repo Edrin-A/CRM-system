@@ -1,68 +1,195 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
+.homeWrapper {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #fdfdfd;
+  padding: 30px; /* Lägg till padding */
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 50px; /* Lägg till padding */
+  background-color: rgb(235, 235, 232);
+  border-radius: 30px;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+.Logo-home {
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 200px; /* Öka marginalen mellan bilden och input-fälten */
+  
+}
+
+.Logo {
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 120px; /* Öka marginalen mellan bilden och input-fälten */
+}
+
+
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inputField {
+  padding: 5px;
+  font-size: 19px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.buttonWrapper-home {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px; /* Öka avståndet mellan knapparna och input-fälten */
+  width: 300px;
+}
+
+.buttonWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.SigninButton-home {
+  background-color: rgb(240, 240, 245); /* Ändra bakgrundsfärg till blå */
+  color: rgb(40, 3, 252); /* Ändra textfärg till vit */
+  border: none;
+  padding: 10px 40px;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border-radius: 10px;
+  transition: background-color 0.3s;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+
+.SigninButton, .SignupButton {
+  background: linear-gradient(90deg, #f707ff 0%, #3700ff 100%); /* Ändra bakgrundsfärg till blå */
+  color: white; /* Ändra textfärg till vit */
+  border: none;
+  padding: 10px 40px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+}
+
+.SignupButton-signup {
+  background: linear-gradient(90deg, #f707ff 0%, #3700ff 100%); /* Ändra bakgrundsfärg till blå */
+  color: white; /* Ändra textfärg till vit */
+  border: none;
+  padding: 10px 120px;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: background-color 0.3s;
+}
+
+.SigninButton-home:hover, .SignupButton:hover {
+  background-color: rgb(163, 163, 199); /* Effekt vid hover */
+}
+
+.SignupButton:hover {
+  background-color: darkblue; /* Effekt vid hover */
+}
+
+.signup-title {
+  margin-top: -50px; /* Öka avståndet mellan knapparna och texten */
+  margin-bottom: 50px;
+  color: rgb(69, 69, 245); /* Ändra textfärg till blå */
+  text-align: center;
+  font-size: 50px;
+}
+
+.SigninButton-Layout {
+    background-color: rgb(240, 240, 245);
+      /* Ändra bakgrundsfärg till blå */
+      color: rgb(40, 3, 252);
+      /* Ändra textfärg till vit */
+      border: none;
+      padding: 10px 40px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: background-color 0.3s;
+}
+
+.buttonWrapper-Layout {
+  position: absolute;
+    /* Positionera elementet absolut */
+    top: 20px;
+    /* Placera elementet 20px från toppen */
+    right: 20px;
+    /* Placera elementet 20px från höger */
+    display: flex;
+    justify-content: flex-end;
+}
+
+.SigninButton-Layout {
+  background-color: rgb(240, 240, 245);
+  /* Ändra bakgrundsfärg till blå /
+      color: rgb(40, 3, 252);
+      / Ändra textfärg till vit /
+      border: none;
+      padding: 10px 40px;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: background-color 0.3s;
+}
+
+.buttonWrapper-Layout {
+  position: absolute;
+    / Positionera elementet absolut /
+    top: 20px;
+    / Placera elementet 20px från toppen /
+    right: 20px;
+    / Placera elementet 20px från höger */
+  display: flex;
+  justify-content: flex-end;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+  width: 450px;
+}
+
+.form-medelande {
+  height: 220px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.formGroup input,
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 25px;
+  /* Lägg till padding */
+  background-color: rgb(235, 235, 232);
+  border-radius: 30px;
+}
+
+.Logo-Layout {
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 80px;
+  /* Öka marginalen mellan bilden och input-fälten */
 }
