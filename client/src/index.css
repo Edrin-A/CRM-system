@@ -160,7 +160,11 @@
 }
 
 .form-medelande {
-  height: 220px;
+  height: 120px;
+}
+
+.form-sobject {
+  height: 90px;
 }
 
 .formGroup label {

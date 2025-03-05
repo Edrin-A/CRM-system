@@ -26,9 +26,22 @@ app.MapGet("/", () => "Hello World!");
 app.MapGet("/api/login", (Func<HttpContext, Task<IResult>>)GetLogin);
 app.MapPost("/api/login", (Func<HttpContext, LoginRequest, NpgsqlDataSource, Task<IResult>>)Login);
 app.MapDelete("/api/login", (Func<HttpContext, Task<IResult>>)Logout);
+app.MapPost("/api/form", PostForm);
 
 //app.MapGet("/api/admin/data", () => "This is very secret admin data here..").RequireRole(Role.ADMIN);
 //app.MapGet("/api/user/data", () => "This is data that users can look at. Its not very secret").RequireRole(Role.USER);
+
+
+static async Task<IResult> PostForm(FormRequest form)
+{
+  Console.WriteLine("Form is posted..");
+  Console.WriteLine("Company: " + form.Company);
+  Console.WriteLine("Email: " + form.Email);
+  Console.WriteLine("Subject: " + form.Subject);
+  Console.WriteLine("Message: " + form.Message);
+  return Results.Ok(new { message = "Form is posted." });
+}
+
 
 static async Task<IResult> GetLogin(HttpContext context)
 {

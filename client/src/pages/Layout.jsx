@@ -10,6 +10,7 @@ export default function Layout() {
   const [company, setCompany] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [sobject, setSobject] = useState("");
 
   function handleOnHome() {
     navigate("/Home");
@@ -18,7 +19,7 @@ export default function Layout() {
   function handleSubmit(event) {
     event.preventDefault();
     // Här kan du hantera formulärdata, t.ex. skicka det till en server
-    console.log({ company, email, message });
+    console.log({ company, email, message, sobject });
   }
 
 
@@ -41,15 +42,23 @@ export default function Layout() {
             <option value='Tesla AB'>Tesla AB</option>
           </select>
         </div>
+
         <div className='formGroup'>
           <label htmlFor='email'>Gmail:</label>
           <input type='email' id='email' placeholder='Skriv gmail...' value={email} onChange={(e) => setEmail(e.target.value)} required />
+        </div>
+
+        
+        <div className='formGroup'>
+          <label htmlFor='sobject'>Ämne:</label>
+          <input className='form-sobject' id='sobject' value={sobject} onChange={(e) => setSobject(e.target.value)} required ></input>
         </div>
 
         <div className='formGroup'>
           <label htmlFor='message'>Meddelande:</label>
           <input className='form-medelande' id='message' value={message} onChange={(e) => setMessage(e.target.value)} required ></input>
         </div>
+        
         <Button className='SignupButton' text="Skicka in" />
       </form>
     </div>
