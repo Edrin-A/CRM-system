@@ -98,8 +98,8 @@ export default function Layout() {
                 required
               >
                 <option value=''>Välj ett företag</option>
-                <option value='Apple AB'>Apple AB</option>
-                <option value='Tesla AB'>Tesla AB</option>
+                <option value='Godisfabriken AB'>Godisfabriken AB</option>
+                <option value='Sport AB'>Sport AB</option>
               </select>
             </div>
 
