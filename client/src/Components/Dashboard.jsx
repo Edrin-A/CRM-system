@@ -129,7 +129,7 @@ export default function Dashboard() { // Ändra namnet på komponenten till Dash
             <InboxIcon />
           </ListItemIcon>
           <ListItemText
-            primary="Dashboarder"
+            primary="Dashboard"
             sx={[
               open
                 ? {
@@ -270,7 +270,7 @@ export default function Dashboard() { // Ändra namnet på komponenten till Dash
             <InboxIcon />
           </ListItemIcon>
           <ListItemText
-            primary="Pågående"
+            primary="Registerade"
             sx={[
               open
                 ? {
