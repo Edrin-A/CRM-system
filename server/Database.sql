@@ -1,3 +1,6 @@
+-- Kör denna om "gen_random_uuid()" ÄR RÖD MARKERAD FÖR DIG och byta ut till "uuid_generate_v4()" (detta är helt beroende på vilken version av postgres du har)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- Skapa enum för roller
 create type role as enum ('USER', 'ADMIN', 'SUPPORT');
 
@@ -23,6 +26,20 @@ CREATE TABLE customer_profiles (
     adress VARCHAR(255)
 );
 
+CREATE TABLE companies (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    domain VARCHAR(255) UNIQUE 
+);
+
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    company_id INTEGER REFERENCES companies(id)
+);
+
+
 CREATE TABLE tickets (
     id SERIAL PRIMARY KEY,
     customer_profile_id INTEGER REFERENCES customer_profiles(id), 
@@ -41,19 +58,6 @@ CREATE TABLE messages (
     sender_type role NOT NULL, -- 'USER', 'ADMIN'
     message_text TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE companies (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    domain VARCHAR(255) UNIQUE 
-);
-
-CREATE TABLE products (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    company_id INTEGER REFERENCES companies(id)
 );
 
 CREATE TABLE feedback (
