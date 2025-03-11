@@ -10,6 +10,7 @@ import Analys from './pages2/Analys'
 import Anvandare from './pages2/Anvandare'
 import Message from './pages2/Message'
 import Layout from './pages/Layout'
+import ChatPage from './pages/ChatPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/analys" element={<Analys />} />
         <Route path="/användare" element={<Anvandare />} />
         <Route path="/message" element={<Message />} />
+        <Route path="/chat/:chatToken" element={<ChatPage />} />
       </Routes>
     </BrowserRouter>
   )

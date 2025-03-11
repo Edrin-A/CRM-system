@@ -20,7 +20,7 @@ CREATE TABLE users (
 CREATE TABLE customer_profiles (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
-    firstname VARCHAR(255) NOT NULL,
+    firstname VARCHAR(255),
     lastname VARCHAR(255),
     phone VARCHAR(50),
     adress VARCHAR(255)

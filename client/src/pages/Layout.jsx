@@ -34,7 +34,14 @@ export default function Layout() {
       });
 
       if (formResponse.ok) {
-        // Om formuläret skickades, skicka bekräftelsemail
+        // Hämta chat_token från svaret
+        const formData = await formResponse.json();
+        const chatToken = formData.chatToken;
+
+        // Skapa chat-URL
+        const chatUrl = `${window.location.origin}/chat/${chatToken}`;
+
+        // Skicka bekräftelsemail med chat-länk
         const emailResponse = await fetch('/api/email', {
           method: 'POST',
           headers: {
@@ -52,9 +59,9 @@ export default function Layout() {
                 <li>Ämne: ${subject}</li>
                 <li>Meddelande: ${message}</li>
               </ul>
-              <p>Vi kommer att kontakta dig på: ${email}</p>
+              <p>Klicka på länken nedan för att följa och svara på ditt ärende:</p>
+              <a href="${chatUrl}">Följ ditt ärende här</a>
             `
-            // Ändra "vi kommer att kontakta dig på: ${email}" till chattoken länken
           })
         });
 
