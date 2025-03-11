@@ -92,6 +92,19 @@
   transition: background-color 0.3s;
 }
 
+     .SendButton-Layout {
+    
+      background: linear-gradient(90deg, #f707ff 0%, #3700ff 100%);
+        /* Ändra bakgrundsfärg till blå */
+        color: white;
+        /* Ändra textfärg till vit */
+        border: none;
+        padding: 10px 40px;
+        cursor: pointer;
+        border-radius: 10px;
+        transition: background-color 0.3s;
+     } 
+
 .SignupButton-signup {
   background: linear-gradient(90deg, #f707ff 0%, #3700ff 100%);
   /* Ändra bakgrundsfärg till blå */
