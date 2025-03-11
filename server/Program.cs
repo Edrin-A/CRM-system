@@ -2,7 +2,8 @@ using System.Text.Json;
 using Npgsql;
 using server;
 using server.Classes;
-
+using server.Services;
+using server.Config;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,19 @@ builder.Services.AddSession(options =>
 Database database = new Database();
 NpgsqlDataSource db = database.Connection();
 builder.Services.AddSingleton(db);
+
+
+// Mailkit
+var emailSettings = builder.Configuration.GetSection("Email").Get<EmailSettings>();
+if (emailSettings != null)
+{
+  builder.Services.AddSingleton(emailSettings);
+}
+else
+{
+  throw new InvalidOperationException("Email settings are not configured properly.");
+}
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 
@@ -98,5 +112,25 @@ static async Task<IResult> Logout(HttpContext context)
   await Task.Run(context.Session.Clear);
   return Results.Ok(new { message = "Logged out." });
 }
+
+
+
+
+// Mailkit
+
+app.MapPost("/api/email", SendEmail);
+
+static async Task<IResult> SendEmail(EmailRequest request, IEmailService email)
+{
+  Console.WriteLine("SendEmail is called..Sending email");
+
+  await email.SendEmailAsync(request.To, request.Subject, request.Body);
+
+  Console.WriteLine("Email sent to: " + request.To + " with subject: " + request.Subject + " and body: " + request.Body);
+  return Results.Ok(new { message = "Email sent." });
+}
+
+
+
 
 await app.RunAsync();

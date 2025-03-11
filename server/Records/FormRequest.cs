@@ -1,3 +1,3 @@
 namespace server;
 
-public record FormRequest(string company, string email, string subject, string message);
+public record FormRequest(string Company, string Email, string Subject, string Message);
