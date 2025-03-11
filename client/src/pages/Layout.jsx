@@ -49,10 +49,12 @@ export default function Layout() {
               <p>Dina uppgifter:</p>
               <ul>
                 <li>Företag: ${company}</li>
-                <li>Ämne: ${subject}</li> 
+                <li>Ämne: ${subject}</li>
+                <li>Meddelande: ${message}</li>
               </ul>
               <p>Vi kommer att kontakta dig på: ${email}</p>
             `
+            // Ändra "vi kommer att kontakta dig på: ${email}" till chattoken länken
           })
         });
 
