@@ -71,3 +71,36 @@ CREATE TABLE feedback (
 INSERT INTO users (username, password, email, role) VALUES ('admin', 'admin', 'admin@test.com', 'ADMIN');
 INSERT INTO users (username, password, email, role) VALUES ('support1', 'support1', 'support1@test.com', 'SUPPORT');
 INSERT INTO users (username, password, email, role) VALUES ('user', 'user', 'user@test.com', 'USER');
+
+
+INSERT INTO companies (name, domain) VALUES
+('Godisfabriken AB', 'godisfabriken.se'),
+('Sport AB', 'sportab.se');
+
+
+-- Lägg till produkter för Godisfabriken AB
+INSERT INTO products (name, description, company_id) VALUES
+('Geléhallon', 'Saftiga geléhallon med äkta hallonsmak',
+ (SELECT id FROM companies WHERE name = 'Godisfabriken AB')),
+('Chokladpraliner', 'Handgjorda praliner med mjölkchoklad och hasselnötsfyllning',
+ (SELECT id FROM companies WHERE name = 'Godisfabriken AB')),
+('Sura Colanappar', 'Syrliga colanappar med intensiv smak',
+ (SELECT id FROM companies WHERE name = 'Godisfabriken AB')),
+('Colastänger', 'Klassiska colastängar',
+ (SELECT id FROM companies WHERE name = 'Godisfabriken AB')),
+('Skumbananer', 'Mjuka skumbananer med chokladöverdrag',
+ (SELECT id FROM companies WHERE name = 'Godisfabriken AB'));
+
+
+-- Lägg till produkter för Sport AB
+INSERT INTO products (name, description, company_id) VALUES
+('Nike fotbollsskor', 'Professionella fotbollsskor för gräsplan',
+ (SELECT id FROM companies WHERE name = 'Sport AB')),
+('Adidas tröja', 'Skön Adidas tröja',
+ (SELECT id FROM companies WHERE name = 'Sport AB')),
+('Puma mössa', 'Perfekt mössa för kallt väder',
+ (SELECT id FROM companies WHERE name = 'Sport AB')),
+('Nike shorts', 'Shorts för dig som gillar att vara aktiv',
+ (SELECT id FROM companies WHERE name = 'Sport AB')),
+('Adidas sneakers', 'Sneakers med stil',
+ (SELECT id FROM companies WHERE name = 'Sport AB'));
