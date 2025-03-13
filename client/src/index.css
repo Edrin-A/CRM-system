@@ -105,7 +105,8 @@
   transition: background-color 0.3s;
 }
 
-.SignupButton-signup {
+.SignupButton-signup,
+.SigninButton-signin {
   background: linear-gradient(90deg, #f707ff 0%, #3700ff 100%);
   /* Ändra bakgrundsfärg till blå */
   color: white;
@@ -128,7 +129,8 @@
   /* Effekt vid hover */
 }
 
-.signup-title {
+.signup-title,
+.signin-title {
   margin-top: -50px;
   /* Öka avståndet mellan knapparna och texten */
   margin-bottom: 50px;

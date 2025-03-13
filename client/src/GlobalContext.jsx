@@ -40,12 +40,14 @@ function GlobalProvider({ children }) {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        await getLogin(); // Uppdatera användarinformation
-        return { success: true, data };
+        const userData = await response.json();
+        setUser(userData);  // Sätt användaren direkt från svaret
+        return { success: true };
       } else {
-        const error = await response.json();
-        return { success: false, message: error.message || "Inloggning misslyckades" };
+        return {
+          success: false,
+          message: "Felaktigt användarnamn eller lösenord, eller så har du inte behörighet att logga in"
+        };
       }
     } catch (error) {
       console.error("Fel vid inloggning:", error);
