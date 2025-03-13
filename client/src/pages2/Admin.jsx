@@ -97,7 +97,7 @@ export default function Admin() {
               <input
                 type='email'
                 id='email'
-                placeholder='Skriv gmail...'
+                placeholder='Skriv email...'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

@@ -12,8 +12,7 @@ import Message from './pages2/Message'
 import Layout from './pages/Layout'
 import Admin from './pages2/Admin'
 import ChatPage from './pages/ChatPage'
-import Kontakt from "./pages2/Kontakt"
-
+import Kontakt from './pages2/Kontakt'
 
 
 function App() {
@@ -32,8 +31,8 @@ function App() {
         <Route path="/användare" element={<Anvandare />} />
         <Route path="/message" element={<Message />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/Kontakt" element={<Kontakt />} />
         <Route path="/chat/:chatToken" element={<ChatPage />} />
-        <Route path="/Kontakt" element= {<Kontakt/>} />
       </Routes>
     </BrowserRouter>
   )

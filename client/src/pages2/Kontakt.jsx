@@ -11,7 +11,7 @@ const Kontakt = () => {
     <Box sx={{ display: 'flex' }}>
       <Dashboard />
        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <h1>JAAA BROSHAN</h1> 
+      <h1>Kontakt</h1> 
       </Box>
       </Box>
       </>
