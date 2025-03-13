@@ -5,7 +5,7 @@ import Signup from "./pages/Signup"
 import Dashboard from './Components/Dashboard'
 import Homes from './pages2/Homes'
 import Notiser from './pages2/Notiser'
-import Pagaende from './pages2/Pagaende'
+import Arenden from './pages2/Arenden'
 import Analys from './pages2/Analys'
 import Anvandare from './pages2/Anvandare'
 import Message from './pages2/Message'
@@ -13,6 +13,7 @@ import Layout from './pages/Layout'
 import Admin from './pages2/Admin'
 import ChatPage from './pages/ChatPage'
 import Kontakt from './pages2/Kontakt'
+
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/homes" element={<Homes />} />
         <Route path="/notiser" element={<Notiser />} />
-        <Route path="/pågående" element={<Pagaende />} />
+        <Route path="/ärenden" element={<Arenden />} />
         <Route path="/analys" element={<Analys />} />
         <Route path="/användare" element={<Anvandare />} />
         <Route path="/message" element={<Message />} />

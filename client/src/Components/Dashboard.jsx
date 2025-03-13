@@ -99,11 +99,11 @@ export default function Dashboard() {
                 },
                 open
                   ? {
-                      justifyContent: 'initial',
-                    }
+                    justifyContent: 'initial',
+                  }
                   : {
-                      justifyContent: 'center',
-                    },
+                    justifyContent: 'center',
+                  },
               ]}
             >
               <ListItemIcon
@@ -114,11 +114,11 @@ export default function Dashboard() {
                   },
                   open
                     ? {
-                        mr: 3,
-                      }
+                      mr: 3,
+                    }
                     : {
-                        mr: 'auto',
-                      },
+                      mr: 'auto',
+                    },
                 ]}
               >
                 <InboxIcon />
@@ -128,11 +128,11 @@ export default function Dashboard() {
                 sx={[
                   open
                     ? {
-                        opacity: 1,
-                      }
+                      opacity: 1,
+                    }
                     : {
-                        opacity: 0,
-                      },
+                      opacity: 0,
+                    },
                 ]}
               />
             </ListItemButton>
@@ -146,11 +146,11 @@ export default function Dashboard() {
                 },
                 open
                   ? {
-                      justifyContent: 'initial',
-                    }
+                    justifyContent: 'initial',
+                  }
                   : {
-                      justifyContent: 'center',
-                    },
+                    justifyContent: 'center',
+                  },
               ]}
             >
               <ListItemIcon
@@ -161,11 +161,11 @@ export default function Dashboard() {
                   },
                   open
                     ? {
-                        mr: 3,
-                      }
+                      mr: 3,
+                    }
                     : {
-                        mr: 'auto',
-                      },
+                      mr: 'auto',
+                    },
                 ]}
               >
                 <InboxIcon />
@@ -175,11 +175,11 @@ export default function Dashboard() {
                 sx={[
                   open
                     ? {
-                        opacity: 1,
-                      }
+                      opacity: 1,
+                    }
                     : {
-                        opacity: 0,
-                      },
+                      opacity: 0,
+                    },
                 ]}
               />
             </ListItemButton>
@@ -193,11 +193,11 @@ export default function Dashboard() {
                 },
                 open
                   ? {
-                      justifyContent: 'initial',
-                    }
+                    justifyContent: 'initial',
+                  }
                   : {
-                      justifyContent: 'center',
-                    },
+                    justifyContent: 'center',
+                  },
               ]}
             >
               <ListItemIcon
@@ -208,11 +208,11 @@ export default function Dashboard() {
                   },
                   open
                     ? {
-                        mr: 3,
-                      }
+                      mr: 3,
+                    }
                     : {
-                        mr: 'auto',
-                      },
+                      mr: 'auto',
+                    },
                 ]}
               >
                 <InboxIcon />
@@ -222,16 +222,16 @@ export default function Dashboard() {
                 sx={[
                   open
                     ? {
-                        opacity: 1,
-                      }
+                      opacity: 1,
+                    }
                     : {
-                        opacity: 0,
-                      },
+                      opacity: 0,
+                    },
                 ]}
               />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/pågående')}>
+          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/ärenden')}>
             <ListItemButton
               sx={[
                 {
@@ -240,11 +240,11 @@ export default function Dashboard() {
                 },
                 open
                   ? {
-                      justifyContent: 'initial',
-                    }
+                    justifyContent: 'initial',
+                  }
                   : {
-                      justifyContent: 'center',
-                    },
+                    justifyContent: 'center',
+                  },
               ]}
             >
               <ListItemIcon
@@ -255,25 +255,25 @@ export default function Dashboard() {
                   },
                   open
                     ? {
-                        mr: 3,
-                      }
+                      mr: 3,
+                    }
                     : {
-                        mr: 'auto',
-                      },
+                      mr: 'auto',
+                    },
                 ]}
               >
                 <InboxIcon />
               </ListItemIcon>
               <ListItemText
-                primary="Registrerade"
+                primary="Ärenden"
                 sx={[
                   open
                     ? {
-                        opacity: 1,
-                      }
+                      opacity: 1,
+                    }
                     : {
-                        opacity: 0,
-                      },
+                      opacity: 0,
+                    },
                 ]}
               />
             </ListItemButton>
@@ -287,11 +287,11 @@ export default function Dashboard() {
                 },
                 open
                   ? {
-                      justifyContent: 'initial',
-                    }
+                    justifyContent: 'initial',
+                  }
                   : {
-                      justifyContent: 'center',
-                    },
+                    justifyContent: 'center',
+                  },
               ]}
             >
               <ListItemIcon
@@ -302,11 +302,11 @@ export default function Dashboard() {
                   },
                   open
                     ? {
-                        mr: 3,
-                      }
+                      mr: 3,
+                    }
                     : {
-                        mr: 'auto',
-                      },
+                      mr: 'auto',
+                    },
                 ]}
               >
                 <InboxIcon />
@@ -316,11 +316,11 @@ export default function Dashboard() {
                 sx={[
                   open
                     ? {
-                        opacity: 1,
-                      }
+                      opacity: 1,
+                    }
                     : {
-                        opacity: 0,
-                      },
+                      opacity: 0,
+                    },
                 ]}
               />
             </ListItemButton>
@@ -334,11 +334,11 @@ export default function Dashboard() {
                 },
                 open
                   ? {
-                      justifyContent: 'initial',
-                    }
+                    justifyContent: 'initial',
+                  }
                   : {
-                      justifyContent: 'center',
-                    },
+                    justifyContent: 'center',
+                  },
               ]}
             >
               <ListItemIcon
@@ -349,11 +349,11 @@ export default function Dashboard() {
                   },
                   open
                     ? {
-                        mr: 3,
-                      }
+                      mr: 3,
+                    }
                     : {
-                        mr: 'auto',
-                      },
+                      mr: 'auto',
+                    },
                 ]}
               >
                 <InboxIcon />
@@ -363,11 +363,11 @@ export default function Dashboard() {
                 sx={[
                   open
                     ? {
-                        opacity: 1,
-                      }
+                      opacity: 1,
+                    }
                     : {
-                        opacity: 0,
-                      },
+                      opacity: 0,
+                    },
                 ]}
               />
             </ListItemButton>
@@ -422,9 +422,7 @@ export default function Dashboard() {
 
           
         </List>
-        <Divider />
-        <List sx={{ marginTop: 'auto' }}>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/admin')}>
+        <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/Kontakt')}>
             <ListItemButton
               sx={[
                 {
@@ -458,7 +456,7 @@ export default function Dashboard() {
                 <InboxIcon />
               </ListItemIcon>
               <ListItemText
-                primary="Admin"
+                primary="Kontakt"
                 sx={[
                   open
                     ? {
@@ -471,8 +469,60 @@ export default function Dashboard() {
               />
             </ListItemButton>
           </ListItem>
+        <Divider />
+        <List sx={{ marginTop: 'auto' }}>
+          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/admin')}>
+            <ListItemButton
+              sx={[
+                {
+                  minHeight: 48,
+                  px: 2.5,
+                },
+                open
+                  ? {
+                    justifyContent: 'initial',
+                  }
+                  : {
+                    justifyContent: 'center',
+                  },
+              ]}
+            >
+              <ListItemIcon
+                sx={[
+                  {
+                    minWidth: 0,
+                    justifyContent: 'center',
+                  },
+                  open
+                    ? {
+                      mr: 3,
+                    }
+                    : {
+                      mr: 'auto',
+                    },
+                ]}
+              >
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Admin"
+                sx={[
+                  open
+                    ? {
+                      opacity: 1,
+                    }
+                    : {
+                      opacity: 0,
+                    },
+                ]}
+              />
+
+              
+            </ListItemButton>
+          </ListItem>
         </List>
       </Drawer>
+      
     </Box>
   );
 }

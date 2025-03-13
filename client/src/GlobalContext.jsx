@@ -78,15 +78,17 @@ function GlobalProvider({ children }) {
 
   // Hämta ärenden för support/admin
   async function fetchTickets() {
-    if (!user || (user.role !== 'SUPPORT' && user.role !== 'ADMIN')) {
-      return;
-    }
-
     try {
-      const response = await fetch('/api/tickets', { credentials: 'include' });
+      const response = await fetch('/api/tickets', {
+        credentials: 'include'  // Viktigt för att skicka med cookies
+      });
+
       if (response.ok) {
         const data = await response.json();
+        console.log('Fetched tickets:', data);  // Lägg till denna rad för debugging
         setTickets(data);
+      } else {
+        console.error('Failed to fetch tickets:', await response.text());
       }
     } catch (error) {
       console.error("Fel vid hämtning av ärenden:", error);

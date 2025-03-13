@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import Button from '../Components/button';
 import '../index.css'; // Importera index.css för att använda de uppdaterade stilarna
@@ -12,8 +12,66 @@ export default function Layout() {
   const [subject, setSubject] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false); // Ny state för bekräftelsemeddelande
 
+  // Nya states för företag och produkter
+  const [companies, setCompanies] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState("");
+
+  // Hämta alla företag när komponenten laddas
+  useEffect(() => {
+    async function fetchCompanies() {
+      try {
+        const response = await fetch('/api/companies');
+        if (response.ok) {
+          const data = await response.json();
+          setCompanies(data);
+        }
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    }
+
+    fetchCompanies();
+  }, []);
+
+  // Hämta produkter när ett företag väljs
+  useEffect(() => {
+    async function fetchProducts() {
+      if (!selectedCompanyId) {
+        setProducts([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/companies/${selectedCompanyId}/products`);
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    }
+
+    fetchProducts();
+  }, [selectedCompanyId]);
+
   function handleOnHome() {
     navigate("/Home");
+  }
+
+  // Hantera företagsval
+  function handleCompanyChange(e) {
+    const companyId = e.target.value;
+    setSelectedCompanyId(companyId);
+
+    // Hitta företagsnamnet baserat på ID
+    const selectedCompany = companies.find(c => c.id.toString() === companyId);
+    setCompany(selectedCompany ? selectedCompany.name : "");
+
+    // Återställ produktvalet
+    setSelectedProductId("");
   }
 
   async function handleSubmit(event) {
@@ -29,7 +87,8 @@ export default function Layout() {
           Company: company,
           Email: email,
           Subject: subject,
-          Message: message
+          Message: message,
+          ProductId: selectedProductId // Lägg till produktID
         })
       });
 
@@ -40,6 +99,10 @@ export default function Layout() {
 
         // Skapa chat-URL
         const chatUrl = `${window.location.origin}/chat/${chatToken}`;
+
+        // Hitta produktnamnet
+        const selectedProduct = products.find(p => p.id.toString() === selectedProductId);
+        const productName = selectedProduct ? selectedProduct.name : "";
 
         // Skicka bekräftelsemail med chat-länk
         const emailResponse = await fetch('/api/email', {
@@ -56,6 +119,7 @@ export default function Layout() {
               <p>Dina uppgifter:</p>
               <ul>
                 <li>Företag: ${company}</li>
+                <li>Produkt: ${productName}</li>
                 <li>Ämne: ${subject}</li>
                 <li>Meddelande: ${message}</li>
               </ul>
@@ -72,6 +136,8 @@ export default function Layout() {
           setEmail("");
           setSubject("");
           setMessage("");
+          setSelectedCompanyId("");
+          setSelectedProductId("");
         }
       }
     } catch (error) {
@@ -100,13 +166,34 @@ export default function Layout() {
               <label htmlFor='company'>Välj företag:</label>
               <select
                 id='company'
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
+                value={selectedCompanyId}
+                onChange={handleCompanyChange}
                 required
               >
                 <option value=''>Välj ett företag</option>
-                <option value='Godisfabriken AB'>Godisfabriken AB</option>
-                <option value='Sport AB'>Sport AB</option>
+                {companies.map(company => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className='formGroup'>
+              <label htmlFor='product'>Välj produkt:</label>
+              <select
+                id='product'
+                value={selectedProductId}
+                onChange={(e) => setSelectedProductId(e.target.value)}
+                required
+                disabled={!selectedCompanyId}
+              >
+                <option value=''>Välj en produkt</option>
+                {products.map(product => (
+                  <option key={product.id} value={product.id}>
+                    {product.name}
+                  </option>
+                ))}
               </select>
             </div>
 
