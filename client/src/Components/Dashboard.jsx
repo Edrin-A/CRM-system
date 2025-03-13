@@ -265,7 +265,7 @@ export default function Dashboard() {
                 <InboxIcon />
               </ListItemIcon>
               <ListItemText
-                primary="Registerade"
+                primary="Registrerade"
                 sx={[
                   open
                     ? {
