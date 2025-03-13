@@ -1,17 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import Navbar from '../Components/Navbar';
 import Box from '@mui/material/Box';
+import { GlobalContext } from "../GlobalContext.jsx";
 
 export default function ChatPage() {
   const { chatToken } = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const { user } = useContext(GlobalContext);
 
-  // Hämta meddelanden
+  /**
+   * Hämtar meddelandehistorik för den aktuella chatten
+   * Anropas vid komponentladdning och efter att nya meddelanden skickats
+   * för att hålla konversationen uppdaterad
+   */
   useEffect(() => {
     fetchMessages();
-    // Uppdatera meddelanden var 5:e sekund
+    // Uppdaterar meddelanden var 5:e sekund för att visa nya meddelanden
+    // utan att användaren behöver uppdatera sidan
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
   }, [chatToken]);
@@ -28,6 +35,10 @@ export default function ChatPage() {
     }
   };
 
+  /**
+   * Hanterar inskickning av nya meddelanden
+   * Inkluderar användarens roll för att korrekt visa meddelanden från olika användartyper
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
@@ -38,7 +49,10 @@ export default function ChatPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: newMessage })
+        body: JSON.stringify({
+          message: newMessage,
+          sender_type: user?.role || 'USER'
+        })
       });
 
       if (response.ok) {

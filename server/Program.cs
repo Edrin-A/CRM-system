@@ -21,6 +21,8 @@ builder.Services.AddSingleton(db);
 
 
 // Mailkit
+// Konfigurerar e-posttjänst för att skicka bekräftelser och välkomstmeddelanden
+// Kritisk för användarregistrering och chattokenfunktionalitet
 var emailSettings = builder.Configuration.GetSection("Email").Get<EmailSettings>();
 if (emailSettings != null)
 {
@@ -36,6 +38,7 @@ var app = builder.Build();
 
 app.UseSession();
 
+// API-endpoints för autentisering 
 app.MapGet("/", () => "Hello World!");
 app.MapGet("/api/login", (Func<HttpContext, Task<IResult>>)GetLogin);
 app.MapPost("/api/login", (Func<HttpContext, LoginRequest, NpgsqlDataSource, Task<IResult>>)Login);
@@ -133,12 +136,13 @@ static async Task<IResult> SendEmail(EmailRequest request, IEmailService email)
 
 
 // Skapa customer_profiles, ticket och chattoken
-
+// Formulärhantering för att skapa nya kundärenden
 app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
 {
   try
   {
-    // 1. Skapa eller hämta customer_profile
+    // 1. Skapar eller uppdaterar kundprofil baserat på e-postadress
+    // Detta möjliggör att kunder kan använda systemet utan att skapa ett lösenord
     await using var cmd1 = db.CreateCommand(@"
             INSERT INTO customer_profiles (email)
             VALUES (@email)
@@ -148,7 +152,8 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
     cmd1.Parameters.AddWithValue("@email", form.Email);
     var customerId = await cmd1.ExecuteScalarAsync();
 
-    // 2. Skapa ticket och få tillbaka chat_token
+    // 2. Skapar en ny ticket och genererar en unik chat_token
+    // Denna token används för att identifiera ärendet i chattfunktionen
     await using var cmd2 = db.CreateCommand(@"
             INSERT INTO tickets (customer_profile_id, subject, status)
             VALUES (@customerId, @subject, 'NY')
@@ -166,11 +171,13 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
     await cmd3.ExecuteNonQueryAsync();
 
     Console.WriteLine("Chat token generated: " + chatToken); // För debugging
+                                                             // Returnerar chat_token till klienten för att möjliggöra fortsatt kommunikation
     return Results.Ok(new { chatToken, message = "Form is posted." });
   }
   catch (Exception ex)
   {
-    Console.WriteLine("Error: " + ex.Message); // För debugging
+    // Loggar fel för felsökning och returnerar felmeddelande till klienten
+    Console.WriteLine("Error: " + ex.Message);
     return Results.BadRequest(new { message = ex.Message });
   }
 });
@@ -178,15 +185,16 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
 
 
 
-// Hämta meddelanden för en specifik chat
+// Hämtar meddelandehistorik för ett specifikt ärende baserat på chat_token
+// Används av chattgränssnittet för att visa konversationshistorik
 app.MapGet("/api/messages/{chatToken}", async (string chatToken, NpgsqlDataSource db) =>
 {
   await using var cmd = db.CreateCommand(@"
         SELECT m.* 
         FROM messages m
         JOIN tickets t ON t.id = m.ticket_id
-        WHERE t.chat_token = @chatToken
-        ORDER BY m.created_at");
+        WHERE t.chat_token = @chatToken::uuid
+        ORDER BY m.created_at"); //  behöver konvertera textsträngen till en UUID innan vi jämför den med databasen därför ::uuid
   cmd.Parameters.AddWithValue("@chatToken", chatToken);
 
   var messages = new List<Dictionary<string, object>>();
@@ -204,17 +212,21 @@ app.MapGet("/api/messages/{chatToken}", async (string chatToken, NpgsqlDataSourc
   return Results.Ok(messages);
 });
 
-// Skicka nytt meddelande
+// Lägger till ett nytt meddelande i ett befintligt ärende
+// Behöver uppdateras för att hantera olika avsändartyper (USER, SUPPORT, ADMIN)
 app.MapPost("/api/messages/{chatToken}", async (string chatToken, MessageRequest request, NpgsqlDataSource db) =>
 {
+  // Använder sender_type från klienten för att korrekt kategorisera meddelanden
+  // Detta möjliggör olika stilar för användar- och supportmeddelanden i gränssnittet
   await using var cmd = db.CreateCommand(@"
         INSERT INTO messages (ticket_id, sender_type, message_text)
         VALUES (
-            (SELECT id FROM tickets WHERE chat_token = @chatToken),
-            'USER',
+            (SELECT id FROM tickets WHERE chat_token = @chatToken::uuid),
+            @senderType::role,
             @message
-        )");
+        )"); //  lagt till ::role efter @senderType för att konvertera textsträngen till enum-typen role annars kommer det att ge ett fel
   cmd.Parameters.AddWithValue("@chatToken", chatToken);
+  cmd.Parameters.AddWithValue("@senderType", request.SenderType ?? "USER"); // Fallback till USER om ingen roll anges (så om ingen är inloggad kommer det att vara USER som är avsändare)
   cmd.Parameters.AddWithValue("@message", request.Message);
   await cmd.ExecuteNonQueryAsync();
   return Results.Ok();

@@ -55,7 +55,7 @@ CREATE TABLE tickets (
 CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
     ticket_id INTEGER REFERENCES tickets(id),
-    sender_type role NOT NULL, -- 'USER', 'ADMIN'
+    sender_type role NOT NULL, -- 'USER', 'ADMIN', 'SUPPORT'
     message_text TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

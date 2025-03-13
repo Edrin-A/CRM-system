@@ -1,2 +1,2 @@
 namespace server;
-public record MessageRequest(string Message);
+public record MessageRequest(string Message, string? SenderType);
