@@ -34,7 +34,7 @@ export default function Message() { // Skapar en funktion som heter Message som 
         <Dashboard /> {/* Visar Dashboard-komponenten */}
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}> {/* Skapar en huvudbox som växer och har padding */}
           <Typography variant="h4" gutterBottom> {/* Visar en rubrik med texten "Chat" */}
-            Chat
+            Chatt
           </Typography>
           <Box sx={{ display: 'flex' }}> {/* Skapar en box som innehåller användarlistan och meddelandeområdet */}
             <Box sx={{ width: '15%', borderRight: '1px solid #ccc', borderRadius: 1, boxShadow: 3, p: 2, bgcolor: 'background.paper' }}> {/* Skapar en inramad och skuggad box för användarlistan */}
@@ -77,7 +77,7 @@ export default function Message() { // Skapar en funktion som heter Message som 
                 <TextField
                   fullWidth
                   variant="outlined"
-                  placeholder="Type a message..." // Sätter en platshållartext i textfältet
+                  placeholder="Skriv ett meddelande..." // Sätter en platshållartext i textfältet
                   value={input} // Sätter värdet i textfältet till input state-variabeln
                   onChange={(e) => setInput(e.target.value)} // Uppdaterar input state-variabeln när texten ändras
                   onKeyPress={(e) => {
@@ -87,7 +87,7 @@ export default function Message() { // Skapar en funktion som heter Message som 
                   }}
                 />
                 <Button variant="contained" color="primary" onClick={handleSendMessage}> {/* Skapar en knapp för att skicka meddelandet */}
-                  Send
+                  Skicka
                 </Button>
               </Box>
             </Box>

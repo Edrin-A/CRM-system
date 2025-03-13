@@ -111,11 +111,11 @@ export default function Layout() {
             </div>
 
             <div className='formGroup'>
-              <label htmlFor='email'>Gmail:</label>
+              <label htmlFor='email'>Email:</label>
               <input
                 type='email'
                 id='email'
-                placeholder='Skriv gmail...'
+                placeholder='Skriv email...'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

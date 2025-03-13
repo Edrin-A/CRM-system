@@ -93,11 +93,11 @@ export default function Admin() {
             </div>
 
             <div className='formGroup'>
-              <label htmlFor='email'>Gmail:</label>
+              <label htmlFor='email'>Email:</label>
               <input
                 type='email'
                 id='email'
-                placeholder='Skriv gmail...'
+                placeholder='Skriv email...'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -129,7 +129,7 @@ export default function Admin() {
                 onChange={(e) => setRole(e.target.value)}
                 required
               >
-                <option value=''>välj roll</option>
+                <option value=''>Välj roll</option>
                 <option value='Admin'>Admin</option>
                 <option value='Support'>Support</option>
               </select>
