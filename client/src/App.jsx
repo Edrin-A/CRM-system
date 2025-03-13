@@ -11,7 +11,7 @@ import Anvandare from './pages2/Anvandare'
 import Message from './pages2/Message'
 import Layout from './pages/Layout'
 import Admin from './pages2/Admin'
-
+import ChatPage from './pages/ChatPage'
 
 function App() {
   return (
@@ -28,7 +28,8 @@ function App() {
         <Route path="/analys" element={<Analys />} />
         <Route path="/användare" element={<Anvandare />} />
         <Route path="/message" element={<Message />} />
-        <Route path='/admin' element={<Admin />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/chat/:chatToken" element={<ChatPage />} />
       </Routes>
     </BrowserRouter>
   )
