@@ -67,7 +67,7 @@ export default function ChatPage() {
   return (
     <>
       <Navbar />
-      <Box height={30} />
+      <Box height={110} />
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Box sx={{ width: '80%', maxWidth: '800px' }}>
           <div className="chat-container">
