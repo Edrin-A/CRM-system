@@ -44,6 +44,7 @@ export default function ChatPage() {
     if (!newMessage.trim()) return;
 
     try {
+      // Använd senderType och skicka användarens roll om inloggad
       const response = await fetch(`/api/messages/${chatToken}`, {
         method: 'POST',
         headers: {
@@ -51,7 +52,7 @@ export default function ChatPage() {
         },
         body: JSON.stringify({
           message: newMessage,
-          sender_type: user?.role || 'USER'
+          senderType: user?.role || 'USER'  // Använd user.role från GlobalContext
         })
       });
 
@@ -62,6 +63,11 @@ export default function ChatPage() {
     } catch (error) {
       console.error('Error sending message:', error);
     }
+  };
+
+  // Hjälpfunktion för att avgöra om ett meddelande är från support/admin
+  const isStaffMessage = (senderType) => {
+    return senderType === 'ADMIN' || senderType === 'SUPPORT';
   };
 
   return (
@@ -75,11 +81,11 @@ export default function ChatPage() {
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`message ${msg.sender_type.toLowerCase()}`}
+                  className={`message ${isStaffMessage(msg.sender_type) ? 'staff-message' : 'user-message'}`}
                 >
                   <div className="message-content">{msg.message_text}</div>
                   <div className="message-time">
-                    {new Date(msg.created_at).toLocaleString()}
+                    {msg.sender_type} - {new Date(msg.created_at).toLocaleString()}
                   </div>
                 </div>
               ))}

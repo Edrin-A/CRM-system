@@ -167,11 +167,12 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
     // 2. Skapar en ny ticket och genererar en unik chat_token
     // Denna token används för att identifiera ärendet i chattfunktionen
     await using var cmd2 = db.CreateCommand(@"
-            INSERT INTO tickets (customer_profile_id, subject, status)
-            VALUES (@customerId, @subject, 'NY')
+            INSERT INTO tickets (customer_profile_id, subject, status, product_id)
+            VALUES (@customerId, @subject, 'NY', @productId)
             RETURNING chat_token");
     cmd2.Parameters.AddWithValue("@customerId", customerId);
     cmd2.Parameters.AddWithValue("@subject", form.Subject);
+    cmd2.Parameters.AddWithValue("@productId", form.ProductId);
     var chatToken = await cmd2.ExecuteScalarAsync();
 
     // 3. Spara första meddelandet
@@ -228,8 +229,15 @@ app.MapGet("/api/messages/{chatToken}", async (string chatToken, NpgsqlDataSourc
 // Behöver uppdateras för att hantera olika avsändartyper (USER, SUPPORT, ADMIN)
 app.MapPost("/api/messages/{chatToken}", async (string chatToken, MessageRequest request, NpgsqlDataSource db) =>
 {
-  // Använder sender_type från klienten för att korrekt kategorisera meddelanden
-  // Detta möjliggör olika stilar för användar- och supportmeddelanden i gränssnittet
+  // Validera senderType för att säkerställa att det är ett giltigt värde
+  string senderType = request.SenderType ?? "USER";
+
+  // Kontrollera att senderType är ett giltigt role-värde
+  if (!Enum.TryParse<Role>(senderType, out _))
+  {
+    senderType = "USER"; // Fallback till USER om ogiltig roll
+  }
+
   await using var cmd = db.CreateCommand(@"
         INSERT INTO messages (ticket_id, sender_type, message_text)
         VALUES (
@@ -238,10 +246,150 @@ app.MapPost("/api/messages/{chatToken}", async (string chatToken, MessageRequest
             @message
         )"); //  lagt till ::role efter @senderType för att konvertera textsträngen till enum-typen role annars kommer det att ge ett fel
   cmd.Parameters.AddWithValue("@chatToken", chatToken);
-  cmd.Parameters.AddWithValue("@senderType", request.SenderType ?? "USER"); // Fallback till USER om ingen roll anges (så om ingen är inloggad kommer det att vara USER som är avsändare)
+  cmd.Parameters.AddWithValue("@senderType", senderType);
   cmd.Parameters.AddWithValue("@message", request.Message);
   await cmd.ExecuteNonQueryAsync();
   return Results.Ok();
+});
+
+// Uppdatera status för ett ärende
+app.MapPatch("/api/tickets/{id}/status", async (int id, TicketStatusUpdate request, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+            UPDATE tickets 
+            SET status = @status::ticket_status,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = @id");
+
+    cmd.Parameters.AddWithValue("@id", id);
+    cmd.Parameters.AddWithValue("@status", request.Status);
+
+    int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+    if (rowsAffected == 0)
+    {
+      return Results.NotFound();
+    }
+
+    return Results.Ok();
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error updating ticket status: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+});
+
+app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+            SELECT 
+                t.id,
+                t.status,
+                t.subject,
+                t.chat_token,
+                cp.email as customer_email,
+                c.name as company_name
+            FROM tickets t
+            JOIN customer_profiles cp ON t.customer_profile_id = cp.id
+            JOIN products p ON t.product_id = p.id
+            JOIN companies c ON p.company_id = c.id
+            ORDER BY t.created_at DESC");
+
+    var tickets = new List<Dictionary<string, object>>();
+    await using var reader = await cmd.ExecuteReaderAsync();
+
+    while (await reader.ReadAsync())
+    {
+      tickets.Add(new Dictionary<string, object>
+      {
+        { "id", reader.GetInt32(0) },
+        { "status", reader.GetString(1) },
+        { "subject", reader.GetString(2) },
+        { "chat_token", reader.GetGuid(3) },
+        { "customer_email", reader.GetString(4) },
+        { "company_name", reader.GetString(5) }
+      });
+    }
+
+    return Results.Ok(tickets);
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error fetching tickets: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+});
+
+// Endpoint för att hämta produkter för ett specifikt företag
+app.MapGet("/api/companies/{companyId}/products", async (int companyId, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+            SELECT id, name, description
+            FROM products
+            WHERE company_id = @companyId
+            ORDER BY name");
+
+    cmd.Parameters.AddWithValue("@companyId", companyId);
+
+    var products = new List<Dictionary<string, object>>();
+    await using var reader = await cmd.ExecuteReaderAsync();
+
+    while (await reader.ReadAsync())
+    {
+      products.Add(new Dictionary<string, object>
+            {
+                { "id", reader.GetInt32(0) },
+                { "name", reader.GetString(1) },
+                { "description", reader.GetString(2) }
+            });
+    }
+
+    return Results.Ok(products);
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error fetching products: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+});
+
+// Endpoint för att hämta alla företag
+app.MapGet("/api/companies", async (NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+            SELECT id, name, domain
+            FROM companies
+            ORDER BY name");
+
+    var companies = new List<Dictionary<string, object>>();
+    await using var reader = await cmd.ExecuteReaderAsync();
+
+    while (await reader.ReadAsync())
+    {
+      companies.Add(new Dictionary<string, object>
+            {
+                { "id", reader.GetInt32(0) },
+                { "name", reader.GetString(1) },
+                { "domain", reader.GetString(2) }
+            });
+    }
+
+    return Results.Ok(companies);
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error fetching companies: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
 });
 
 await app.RunAsync();
