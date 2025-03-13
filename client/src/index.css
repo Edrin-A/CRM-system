@@ -5,7 +5,7 @@
   align-items: center;
   height: 100vh;
   background-color: #fdfdfd;
-  padding: 30px;
+  padding: 20px;
   /* Lägg till padding */
 }
 
@@ -26,6 +26,13 @@
   margin-bottom: 200px;
   /* Öka marginalen mellan bilden och input-fälten */
 
+}
+
+.admin-logo {
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 120px;
+  /* Öka marginalen mellan bilden och input-fälten */
 }
 
 .Logo {
