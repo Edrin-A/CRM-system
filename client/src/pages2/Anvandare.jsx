@@ -12,7 +12,7 @@ export default function Anvandare() {
     <Box sx={{ display: 'flex' }}>
       <Dashboard />
        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-      <h1>Användrare</h1> 
+      <h1>Användare</h1> 
       </Box>
     </Box>
  
