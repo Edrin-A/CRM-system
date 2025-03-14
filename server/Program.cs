@@ -437,4 +437,28 @@ app.MapPost("/api/Newpassword", async (PasswordRequest request, NpgsqlDataSource
     }
 });
 
+
+// Skapa en ny supportanvändare
+app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+            INSERT INTO users (username, password, email, role)
+            VALUES (@username, @password, @email, @role::role)");
+    cmd.Parameters.AddWithValue("@username", admin.Username);
+    cmd.Parameters.AddWithValue("@password", admin.Password);
+    cmd.Parameters.AddWithValue("@email", admin.Email);
+    cmd.Parameters.AddWithValue("@role", admin.Role);
+    await cmd.ExecuteNonQueryAsync();
+
+    return Results.Ok(new { message = "Admin user created." });
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+});
+
 await app.RunAsync();
