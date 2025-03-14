@@ -392,4 +392,49 @@ app.MapGet("/api/companies", async (NpgsqlDataSource db) =>
   }
 });
 
+// Byta lösenord
+app.MapPost("/api/Newpassword", async (PasswordRequest request, NpgsqlDataSource db) =>
+{
+    try
+    {
+        // Verifiera att användaren finns och att nuvarande lösenord är korrekt
+        await using var verifyCmd = db.CreateCommand(@"
+            SELECT id FROM users 
+            WHERE email = @email AND password = @password");
+        
+        verifyCmd.Parameters.AddWithValue("@email", request.email);
+        verifyCmd.Parameters.AddWithValue("@password", request.password);
+        
+        var userId = await verifyCmd.ExecuteScalarAsync();
+        
+        if (userId == null)
+        {
+            return Results.BadRequest(new { message = "Felaktigt lösenord eller e-post" });
+        }
+        
+        // Uppdatera lösenordet
+        await using var updateCmd = db.CreateCommand(@"
+            UPDATE users 
+            SET password = @newPassword
+            WHERE id = @userId");
+        
+        updateCmd.Parameters.AddWithValue("@newPassword", request.newPassword);
+        updateCmd.Parameters.AddWithValue("@userId", userId);
+        
+        int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+        
+        if (rowsAffected > 0)
+        {
+            return Results.Ok(new { message = "Lösenord uppdaterat" });
+        }
+        
+        return Results.BadRequest(new { message = "Kunde inte uppdatera lösenordet" });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error updating password: " + ex.Message);
+        return Results.BadRequest(new { message = ex.Message });
+    }
+});
+
 await app.RunAsync();

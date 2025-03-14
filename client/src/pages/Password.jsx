@@ -6,29 +6,29 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 export default function Admin() {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
-  const [passworld, setPassworld] = useState("");
-  const [role, setRole] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewpassword] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false); // Ny state för bekräftelsemeddelande
 
   async function handleSubmit(event) {
     event.preventDefault();
     try {
-      // Skicka formulärdata till backend
-      const formResponse = await fetch('/api/form', {
+      // Skicka formulärdata till backend med rätt endpoint
+      const response = await fetch('/api/Newpassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           userName: userName,
-          Email: email,
-          Passworld: passworld,
-          Role: role
+          email: email,
+          password: password,
+          newPassword: newPassword
         })
       });
 
-      if (formResponse.ok) {
-        // Om formuläret skickades, skicka bekräftelsemail
+      if (response.ok) {
+        // Om lösenordet uppdaterades, skicka bekräftelsemail
         const emailResponse = await fetch('/api/email', {
           method: 'POST',
           headers: {
@@ -36,19 +36,18 @@ export default function Admin() {
           },
           body: JSON.stringify({
             To: email,
-            Subject: "Bekräftelse på din förfrågan",
+            Subject: "Bekräftelse på lösenordsändring",
             Body: `
-              <h2>Tack för din förfrågan!</h2>
-              <p>Vi har mottagit ditt ärende och återkommer inom 24 timmar.</p>
-              <p>Dina uppgifter:</p>
+              <h2>Ditt lösenord har ändrats!</h2>
+              <p>Du har nu ändrat ditt lösenord.</p>
+              
               <ul>
                 <li>Användarnamn: ${userName}</li>
-                <li>Roll: ${role}</li>
-                <li>Lösenord: ${passworld}</li>
+                
+                <li>Lösenord: ${newPassword}</li>
               </ul>
-              <p>Vi kommer att kontakta dig på: ${email}</p>
+              
             `
-            // Ändra "vi kommer att kontakta dig på: ${email}" till chattoken länken
           })
         });
 
@@ -57,13 +56,17 @@ export default function Admin() {
           // Återställ formuläret
           setUserName("");
           setEmail("");
-          setPassworld("");
-          setRole("");
+          setPassword("");
+          setNewPassword("");
+        } else {
+          console.error('Email confirmation failed');
         }
+      } else {
+        console.error('Password update failed');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Något gick fel vid inskickning av formuläret');
+      alert('Något gick fel vid uppdatering av lösenord');
     }
   }
 
@@ -75,12 +78,12 @@ export default function Admin() {
         </dev>
         {isSubmitted ? (
           <div className="success-message">
-            <h3>Du har nu skickat in ditt ärende!</h3>
+            <h3>Du har nu ändrat ditt lösenord!</h3>
             <p>Kolla din e-post för bekräftelse.</p>
           </div>
         ) : (
             <>
-              <h2>Admin</h2>
+              <h2>Ändra lösenord</h2>
             <div className='formGroup'>
               <label htmlFor='userName'>Användarnamn:</label>
               <input
@@ -91,9 +94,9 @@ export default function Admin() {
                 onChange={(e) => setUserName(e.target.value)}
                 required
               />
-            </div>
-
-            <div className='formGroup'>
+              </div>
+              
+              <div className='formGroup'>
               <label htmlFor='email'>Email:</label>
               <input
                 type='email'
@@ -106,35 +109,37 @@ export default function Admin() {
             </div>
 
             <div className='formGroup'>
-              <label htmlFor='passworld'>Lösenord:</label>
+              <label htmlFor='password'>Nuvarande lösenord:</label>
               <input
                 type='password'
-                id='passworld'
+                id='password'
                 placeholder='Skriv lösenord...'
-                value={passworld}
-                onChange={(e) => setPassworld(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
 
-
-
-
-
-
             <div className='formGroup'>
-              <label htmlFor='role'>Roll:</label>
-              <select
-                id='role'
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
+              <label htmlFor='newPassword'> Nytt Lösenord:</label>
+              <input
+                type='password'
+                id='newPassword'
+                placeholder='Skriv lösenord...'
+                value={newPassword}
+                onChange={(e) => setNewpassword(e.target.value)}
                 required
-              >
-                <option value=''>Välj roll</option>
-                <option value='Admin'>Admin</option>
-                <option value='Support'>Support</option>
-              </select>
-            </div>
+              />
+              </div>
+              
+              
+
+
+
+
+
+
+            
 
             <Button className='SendButton-Layout' text="Skicka in" type="submit" />
           </>
@@ -143,4 +148,5 @@ export default function Admin() {
     </div>
   );
 }
+
 
