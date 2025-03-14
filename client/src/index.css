@@ -74,9 +74,9 @@
 }
 
 .SigninButton-home {
-  background-color: rgb(240, 240, 245);
+  background: linear-gradient(90deg, #f707ff 0%, #3700ff 100%);
   /* Ändra bakgrundsfärg till blå */
-  color: rgb(40, 3, 252);
+color: white;
   /* Ändra textfärg till vit */
   border: none;
   padding: 10px 40px;
@@ -90,7 +90,7 @@
 .SignupButton {
   background: linear-gradient(90deg, #f707ff 0%, #3700ff 100%);
   /* Ändra bakgrundsfärg till blå */
-  color: white;
+  
   /* Ändra textfärg till vit */
   border: none;
   padding: 10px 40px;

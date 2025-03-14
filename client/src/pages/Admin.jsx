@@ -44,7 +44,7 @@ export default function Admin() {
                 <li>Email: ${email}</li>
               </ul>
               <p>Gå in på denna länken för att kunna byta lösenord.</p>
-              <a href="${window.location.origin}/password" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Byt lösenord</a>
+              <a href="${window.location.origin}/password" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white;">Byt lösenord</a>
             `
           })
         });

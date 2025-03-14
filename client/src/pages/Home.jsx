@@ -7,10 +7,7 @@ import '../index.css'; // Importera index.css för att använda de uppdaterade s
 const Home = () => {
   const navigate = useNavigate();
 
-  function handleOnSignUp() {
-    navigate("/signup");
-  }
-
+  
   function handleOnSignIn() {
     navigate("/signin");
   }
@@ -23,7 +20,6 @@ const Home = () => {
         </div>
         <div className='buttonWrapper-home'>
           <Button className='SigninButton-home' text="Sign In" onClick={handleOnSignIn} />
-          <Button className='SignupButton' text="Sign Up" onClick={handleOnSignUp} />
         </div>
       </div>
     </div>
