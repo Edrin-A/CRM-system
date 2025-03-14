@@ -13,22 +13,22 @@ export default function Admin() {
   async function handleSubmit(event) {
     event.preventDefault();
     try {
-      // Skicka formulärdata till backend
-      const formResponse = await fetch('/api/form', {
+      // Skicka formulärdata till backend med rätt endpoint
+      const response = await fetch('/api/Newpassword', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           userName: userName,
-          Email: email,
-          Password: password,
+          email: email,
+          password: password,
           newPassword: newPassword
         })
       });
 
-      if (formResponse.ok) {
-        // Om formuläret skickades, skicka bekräftelsemail
+      if (response.ok) {
+        // Om lösenordet uppdaterades, skicka bekräftelsemail
         const emailResponse = await fetch('/api/email', {
           method: 'POST',
           headers: {
@@ -36,9 +36,9 @@ export default function Admin() {
           },
           body: JSON.stringify({
             To: email,
-            Subject: "Bekräftelse på din förfrågan",
+            Subject: "Bekräftelse på lösenordsändring",
             Body: `
-              <h2>Tack för din förfrågan!</h2>
+              <h2>Ditt lösenord har ändrats!</h2>
               <p>Du har nu ändrat ditt lösenord.</p>
               
               <ul>
@@ -48,7 +48,6 @@ export default function Admin() {
               </ul>
               
             `
-            // Ändra "vi kommer att kontakta dig på: ${email}" till chattoken länken
           })
         });
 
@@ -59,11 +58,15 @@ export default function Admin() {
           setEmail("");
           setPassword("");
           setNewPassword("");
+        } else {
+          console.error('Email confirmation failed');
         }
+      } else {
+        console.error('Password update failed');
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Något gick fel vid inskickning av formuläret');
+      alert('Något gick fel vid uppdatering av lösenord');
     }
   }
 
