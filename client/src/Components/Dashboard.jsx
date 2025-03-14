@@ -15,6 +15,8 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
+import { useContext } from 'react';
+import { GlobalContext } from '../GlobalContext';
 
 const drawerWidth = 240;
 
@@ -74,6 +76,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function Dashboard() {
+  const { isAdmin } = useContext(GlobalContext);
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
   const navigate = useNavigate();
@@ -425,55 +428,55 @@ export default function Dashboard() {
           </ListItem>
         <Divider />
         <List sx={{ marginTop: 'auto' }}>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/admin')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                    justifyContent: 'initial',
-                  }
-                  : {
-                    justifyContent: 'center',
-                  },
-              ]}
-            >
-              <ListItemIcon
+          {isAdmin && (
+            <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/admin')}>
+              <ListItemButton
                 sx={[
                   {
-                    minWidth: 0,
-                    justifyContent: 'center',
+                    minHeight: 48,
+                    px: 2.5,
                   },
                   open
                     ? {
-                      mr: 3,
+                      justifyContent: 'initial',
                     }
                     : {
-                      mr: 'auto',
+                      justifyContent: 'center',
                     },
                 ]}
               >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Admin"
-                sx={[
-                  open
-                    ? {
-                      opacity: 1,
-                    }
-                    : {
-                      opacity: 0,
+                <ListItemIcon
+                  sx={[
+                    {
+                      minWidth: 0,
+                      justifyContent: 'center',
                     },
-                ]}
-              />
-
-              
-            </ListItemButton>
-          </ListItem>
+                    open
+                      ? {
+                        mr: 3,
+                      }
+                      : {
+                        mr: 'auto',
+                      },
+                  ]}
+                >
+                  <InboxIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Admin"
+                  sx={[
+                    open
+                      ? {
+                        opacity: 1,
+                      }
+                      : {
+                        opacity: 0,
+                      },
+                  ]}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
         </List>
 
          <List sx={{ marginTop: 'top' }}>

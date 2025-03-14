@@ -392,16 +392,17 @@ app.MapGet("/api/companies", async (NpgsqlDataSource db) =>
   }
 });
 
+// Skapa en ny supportanvändare
 app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) =>
 {
   try
   {
     await using var cmd = db.CreateCommand(@"
-            INSERT INTO admins (username, password, email, role)
-            VALUES (@username, @password, @Email, @role)");
+            INSERT INTO users (username, password, email, role)
+            VALUES (@username, @password, @email, @role::role)");
     cmd.Parameters.AddWithValue("@username", admin.Username);
     cmd.Parameters.AddWithValue("@password", admin.Password);
-    cmd.Parameters.AddWithValue("@Email", admin.Email);
+    cmd.Parameters.AddWithValue("@email", admin.Email);
     cmd.Parameters.AddWithValue("@role", admin.Role);
     await cmd.ExecuteNonQueryAsync();
 

@@ -12,7 +12,7 @@ import Layout from './pages/Layout'
 import Admin from './pages/Admin'
 import ChatPage from './pages/ChatPage'
 import Kontakt from './pages2/Kontakt'
-import Password from './pages2/Password'
+import Password from './pages/Password'
 
 
 function App() {
