@@ -39,7 +39,6 @@ CREATE TABLE products (
     company_id INTEGER REFERENCES companies(id)
 );
 
-
 CREATE TABLE tickets (
     id SERIAL PRIMARY KEY,
     customer_profile_id INTEGER REFERENCES customer_profiles(id), 
@@ -51,6 +50,8 @@ CREATE TABLE tickets (
     updated_at TIMESTAMP,
     product_id INTEGER REFERENCES products(id)
 );
+
+
 
 CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
@@ -66,6 +67,14 @@ CREATE TABLE feedback (
     rating INTEGER CHECK (rating >= 1 AND rating <= 5),
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS admins (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL
 );
 
 INSERT INTO users (username, password, email, role) VALUES ('admin', 'admin', 'admin@test.com', 'ADMIN');

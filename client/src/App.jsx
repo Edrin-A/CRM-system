@@ -15,6 +15,7 @@ import ChatPage from './pages/ChatPage'
 import Kontakt from './pages2/Kontakt'
 
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -33,6 +34,7 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/Kontakt" element={<Kontakt />} />
         <Route path="/chat/:chatToken" element={<ChatPage />} />
+
       </Routes>
     </BrowserRouter>
   )
