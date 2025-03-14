@@ -6,8 +6,8 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 export default function Admin() {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
-  const [passworld, setPassworld] = useState("");
-  const [role, setRole] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewpassword] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false); // Ny state för bekräftelsemeddelande
 
   async function handleSubmit(event) {
@@ -22,8 +22,8 @@ export default function Admin() {
         body: JSON.stringify({
           userName: userName,
           Email: email,
-          Passworld: passworld,
-          Role: role
+          Password: password,
+          newPassword: newPassword
         })
       });
 
@@ -39,14 +39,14 @@ export default function Admin() {
             Subject: "Bekräftelse på din förfrågan",
             Body: `
               <h2>Tack för din förfrågan!</h2>
-              <p>Vi har mottagit ditt ärende och återkommer inom 24 timmar.</p>
-              <p>Dina uppgifter:</p>
+              <p>Du har nu ändrat ditt lösenord.</p>
+              
               <ul>
                 <li>Användarnamn: ${userName}</li>
-                <li>Roll: ${role}</li>
-                <li>Lösenord: ${passworld}</li>
+                
+                <li>Lösenord: ${newPassword}</li>
               </ul>
-              <p>Vi kommer att kontakta dig på: ${email}</p>
+              
             `
             // Ändra "vi kommer att kontakta dig på: ${email}" till chattoken länken
           })
@@ -57,8 +57,8 @@ export default function Admin() {
           // Återställ formuläret
           setUserName("");
           setEmail("");
-          setPassworld("");
-          setRole("");
+          setPassword("");
+          setNewPassword("");
         }
       }
     } catch (error) {
@@ -75,7 +75,7 @@ export default function Admin() {
         </dev>
         {isSubmitted ? (
           <div className="success-message">
-            <h3>Du har nu skickat in ditt ärende!</h3>
+            <h3>Du har nu ändrat ditt lösenord!</h3>
             <p>Kolla din e-post för bekräftelse.</p>
           </div>
         ) : (
@@ -106,25 +106,25 @@ export default function Admin() {
             </div>
 
             <div className='formGroup'>
-              <label htmlFor='email'>Nuvarande lösenord:</label>
+              <label htmlFor='password'>Nuvarande lösenord:</label>
               <input
                 type='password'
-                id='passworld'
+                id='password'
                 placeholder='Skriv lösenord...'
-                value={passworld}
-                onChange={(e) => setPassworld(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
 
             <div className='formGroup'>
-              <label htmlFor='passworld'> Nytt Lösenord:</label>
+              <label htmlFor='newPassword'> Nytt Lösenord:</label>
               <input
                 type='password'
-                id='passworld'
+                id='newPassword'
                 placeholder='Skriv lösenord...'
-                value={passworld}
-                onChange={(e) => setPassworld(e.target.value)}
+                value={newPassword}
+                onChange={(e) => setNewpassword(e.target.value)}
                 required
               />
               </div>

@@ -392,4 +392,18 @@ app.MapGet("/api/companies", async (NpgsqlDataSource db) =>
   }
 });
 
+// Byta lösenord
+app.MapPost("/api/Newpassword", async (PasswordRequest Newpassword, NpgsqlDataSource db) =>
+{
+  await using var cmd = db.CreateCommand(@"
+            UPDATE users 
+            SET password = @NewPassword
+            WHERE email = @email
+            RETURNING id, username, email");
+
+  cmd.Parameters.AddWithValue("@newPassword", Newpassword.newPassword);
+
+
+});
+
 await app.RunAsync();
