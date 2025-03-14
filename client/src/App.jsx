@@ -13,6 +13,7 @@ import Layout from './pages/Layout'
 import Admin from './pages2/Admin'
 import ChatPage from './pages/ChatPage'
 import Kontakt from './pages2/Kontakt'
+import Password from './pages2/Password'
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         <Route path="/message" element={<Message />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/Kontakt" element={<Kontakt />} />
+        <Route path="/Password" element={<Password />} />
         <Route path="/chat/:chatToken" element={<ChatPage />} />
       </Routes>
     </BrowserRouter>

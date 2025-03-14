@@ -80,7 +80,7 @@ export default function Admin() {
           </div>
         ) : (
             <>
-              <h2>Admin</h2>
+              <h2>Ändra lösenord</h2>
             <div className='formGroup'>
               <label htmlFor='userName'>Användarnamn:</label>
               <input
@@ -91,9 +91,9 @@ export default function Admin() {
                 onChange={(e) => setUserName(e.target.value)}
                 required
               />
-            </div>
-
-            <div className='formGroup'>
+              </div>
+              
+              <div className='formGroup'>
               <label htmlFor='email'>Email:</label>
               <input
                 type='email'
@@ -106,7 +106,7 @@ export default function Admin() {
             </div>
 
             <div className='formGroup'>
-              <label htmlFor='passworld'>Lösenord:</label>
+              <label htmlFor='email'>Nuvarande lösenord:</label>
               <input
                 type='password'
                 id='passworld'
@@ -117,24 +117,26 @@ export default function Admin() {
               />
             </div>
 
-
-
-
-
-
             <div className='formGroup'>
-              <label htmlFor='role'>Roll:</label>
-              <select
-                id='role'
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
+              <label htmlFor='passworld'> Nytt Lösenord:</label>
+              <input
+                type='password'
+                id='passworld'
+                placeholder='Skriv lösenord...'
+                value={passworld}
+                onChange={(e) => setPassworld(e.target.value)}
                 required
-              >
-                <option value=''>Välj roll</option>
-                <option value='Admin'>Admin</option>
-                <option value='Support'>Support</option>
-              </select>
-            </div>
+              />
+              </div>
+              
+              
+
+
+
+
+
+
+            
 
             <Button className='SendButton-Layout' text="Skicka in" type="submit" />
           </>
@@ -143,4 +145,5 @@ export default function Admin() {
     </div>
   );
 }
+
 
