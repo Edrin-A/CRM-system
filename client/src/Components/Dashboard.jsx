@@ -372,53 +372,7 @@ export default function Dashboard() {
               />
             </ListItemButton>
           </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/Kontakt')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                      justifyContent: 'initial',
-                    }
-                  : {
-                      justifyContent: 'center',
-                    },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                        mr: 3,
-                      }
-                    : {
-                        mr: 'auto',
-                      },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Kontakt"
-                sx={[
-                  open
-                    ? {
-                        opacity: 1,
-                      }
-                    : {
-                        opacity: 0,
-                      },
-                ]}
-              />
-            </ListItemButton>
-          </ListItem>
+          
 
           
         </List>
@@ -506,6 +460,58 @@ export default function Dashboard() {
               </ListItemIcon>
               <ListItemText
                 primary="Admin"
+                sx={[
+                  open
+                    ? {
+                      opacity: 1,
+                    }
+                    : {
+                      opacity: 0,
+                    },
+                ]}
+              />
+
+              
+            </ListItemButton>
+          </ListItem>
+        </List>
+
+         <List sx={{ marginTop: 'top' }}>
+          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/Password')}>
+            <ListItemButton
+              sx={[
+                {
+                  minHeight: 48,
+                  px: 2.5,
+                },
+                open
+                  ? {
+                    justifyContent: 'initial',
+                  }
+                  : {
+                    justifyContent: 'center',
+                  },
+              ]}
+            >
+              <ListItemIcon
+                sx={[
+                  {
+                    minWidth: 0,
+                    justifyContent: 'center',
+                  },
+                  open
+                    ? {
+                      mr: 3,
+                    }
+                    : {
+                      mr: 'auto',
+                    },
+                ]}
+              >
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary="Ändra lösenord"
                 sx={[
                   open
                     ? {

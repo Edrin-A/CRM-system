@@ -1,25 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router';
-import Button from '../Components/button';
-import '../index.css'; // Importera index.css för att använda de uppdaterade stilarna
-import Shape from '../assets/Shape.png'; // Lägg till denna import
+import '../index.css';
+import Shape from '../assets/Shape.png';
 
 export default function Admin() {
-  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false); // Ny state för bekräftelsemeddelande
-
-  function handleOnHome() {
-    navigate("/Home");
-  }
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   async function handleSubmit(event) {
     event.preventDefault();
     try {
-      // Skicka formulärdata till backend
       const formResponse = await fetch('/api/admin', {
         method: 'POST',
         headers: {
@@ -34,7 +26,6 @@ export default function Admin() {
       });
 
       if (formResponse.ok) {
-        // Skicka bekräftelsemail
         const emailResponse = await fetch('/api/email', {
           method: 'POST',
           headers: {
@@ -44,20 +35,22 @@ export default function Admin() {
             To: email,
             Subject: "Bekräftelse på din registrering",
             Body: `
-              <h2>Tack för din registrering!</h2>
+              <h2>Du har lagts till som Kundtjänstmedarbetare !</h2>
               <p>Dina uppgifter:</p>
               <ul>
                 <li>Användarnamn: ${username}</li>
+                <li>Lösenord: ${password}</li>
                 <li>Roll: ${role}</li>
+                <li>Email: ${email}</li>
               </ul>
-              <p>Vänligen håll denna information säker.</p>
+              <p>Gå in på denna länken för att kunna byta lösenord.</p>
+              <a href="${window.location.origin}/password" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; margin-top: 10px;">Byt lösenord</a>
             `
           })
         });
 
         if (emailResponse.ok) {
           setIsSubmitted(true);
-          // Återställ formuläret
           setUsername("");
           setPassword("");
           setEmail("");
@@ -72,17 +65,14 @@ export default function Admin() {
 
   return (
     <div className='homeWrapper'>
-      <div className='buttonWrapper-Layout'>
-        <Button className='SigninButton-Layout' text="Sign In" onClick={handleOnHome} />
-      </div>
       <form onSubmit={handleSubmit} className='formWrapper'>
         <div className='Logo-Layout'>
           <img src={Shape} alt='Shape' />
         </div>
         {isSubmitted ? (
           <div className="success-message">
-            <h3>Du har nu registrerat en ny användare!</h3>
-            <p>Kolla din e-post för bekräftelse.</p>
+            <h3>Du har nu registrerat en ny kundtjänstmedarbetare!</h3>
+            <p>e-post har nu skickats till denna person.</p>
           </div>
         ) : (
           <>
@@ -124,17 +114,18 @@ export default function Admin() {
 
             <div className='formGroup'>
               <label htmlFor='role'>Roll:</label>
-              <input
-                type='text'
+              <select
                 id='role'
-                placeholder='Skriv roll...'
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 required
-              />
+              >
+                <option value=''>Välj roll</option>
+                <option value='SUPPORT'>Support</option>
+              </select>
             </div>
 
-            <Button className='SendButton-Layout' text="Skicka in" type="submit" />
+            <button className='SendButton-Layout' type="submit">Skicka in</button>
           </>
         )}
       </form>
