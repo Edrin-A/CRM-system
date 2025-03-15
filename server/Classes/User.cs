@@ -9,6 +9,7 @@ public class User
   public string Email { get; set; }
   [JsonConverter(typeof(JsonStringEnumConverter))]
   public Role Role { get; set; }
+  public int? CompanyId { get; set; }
 
   public User(int id, string username, string email, Role role)
   {

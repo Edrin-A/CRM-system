@@ -292,8 +292,22 @@ app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
 {
   try
   {
-    // hämtar relevant information från flera tabeller för att ge en komplett bild av ärendena
-    await using var cmd = db.CreateCommand(@"
+    // Hämta användarinformation från sessionen
+    var userJson = context.Session.GetString("User");
+    if (userJson == null)
+    {
+      return Results.Unauthorized();
+    }
+
+    var user = JsonSerializer.Deserialize<User>(userJson);
+
+    // Hämta användarens company_id från databasen för att kunna filtrera tickets
+    await using var userCmd = db.CreateCommand(@"
+            SELECT company_id FROM users WHERE id = @userId");
+    userCmd.Parameters.AddWithValue("@userId", user.Id);
+    var companyIdResult = await userCmd.ExecuteScalarAsync();
+
+    string query = @"
             SELECT 
                 t.id,
                 t.status,
@@ -304,8 +318,23 @@ app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
             FROM tickets t
             JOIN customer_profiles cp ON t.customer_profile_id = cp.id
             JOIN products p ON t.product_id = p.id
-            JOIN companies c ON p.company_id = c.id
-            ORDER BY t.created_at DESC");
+            JOIN companies c ON p.company_id = c.id";
+
+    // Om användaren är support och har ett företag, filtrera tickets baserat på företag
+    if (user.Role == Role.SUPPORT && companyIdResult != null && companyIdResult != DBNull.Value)
+    {
+      query += " WHERE p.company_id = @companyId";
+    }
+
+    query += " ORDER BY t.created_at DESC";
+
+    await using var cmd = db.CreateCommand(query);
+
+    // Lägg till parameter om vi filtrerar på företag
+    if (user.Role == Role.SUPPORT && companyIdResult != null && companyIdResult != DBNull.Value)
+    {
+      cmd.Parameters.AddWithValue("@companyId", companyIdResult);
+    }
 
     var tickets = new List<Dictionary<string, object>>();
     await using var reader = await cmd.ExecuteReaderAsync();
@@ -455,15 +484,16 @@ app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) =>
   try
   {
     await using var cmd = db.CreateCommand(@"
-            INSERT INTO users (username, password, email, role)
-            VALUES (@username, @password, @email, @role::role)");
+            INSERT INTO users (username, password, email, role, company_id)
+            VALUES (@username, @password, @email, @role::role, @companyId)");
     cmd.Parameters.AddWithValue("@username", admin.Username);
     cmd.Parameters.AddWithValue("@password", admin.Password);
     cmd.Parameters.AddWithValue("@email", admin.Email);
     cmd.Parameters.AddWithValue("@role", admin.Role);
+    cmd.Parameters.AddWithValue("@companyId", admin.CompanyId);
     await cmd.ExecuteNonQueryAsync();
 
-    return Results.Ok(new { message = "Admin user created." });
+    return Results.Ok(new { message = "Support user created." });
   }
   catch (Exception ex)
   {
