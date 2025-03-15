@@ -12,12 +12,22 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import MessageIcon from '@mui/icons-material/Message';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import PeopleIcon from '@mui/icons-material/People';
+import ContactsIcon from '@mui/icons-material/Contacts';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import LockIcon from '@mui/icons-material/Lock';
 import { useNavigate } from 'react-router-dom';
 import Navbar from './Navbar';
 
+// Konstanter
 const drawerWidth = 240;
 
+// Mixins för drawer-stilar
 const openedMixin = (theme) => ({
   width: drawerWidth,
   transition: theme.transitions.create('width', {
@@ -39,44 +49,89 @@ const closedMixin = (theme) => ({
   },
 });
 
+// Styled-komponenter
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
+  // för att få innehållet att vara nedanför app bar
   ...theme.mixins.toolbar,
 }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme }) => ({
+  ({ theme, open }) => ({
     width: drawerWidth,
     flexShrink: 0,
     whiteSpace: 'nowrap',
     boxSizing: 'border-box',
-    variants: [
-      {
-        props: ({ open }) => open,
-        style: {
-          ...openedMixin(theme),
-          '& .MuiDrawer-paper': openedMixin(theme),
-        },
-      },
-      {
-        props: ({ open }) => !open,
-        style: {
-          ...closedMixin(theme),
-          '& .MuiDrawer-paper': closedMixin(theme),
-        },
-      },
-    ],
+    ...(open && {
+      ...openedMixin(theme),
+      '& .MuiDrawer-paper': openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      '& .MuiDrawer-paper': closedMixin(theme),
+    }),
   }),
+);
+
+// Stilar för menyalternativ
+const getItemButtonStyle = (open) => [
+  {
+    minHeight: 48,
+    px: 2.5,
+  },
+  open
+    ? { justifyContent: 'initial' }
+    : { justifyContent: 'center' },
+];
+
+const getItemIconStyle = (open) => [
+  {
+    minWidth: 0,
+    justifyContent: 'center',
+  },
+  open
+    ? { mr: 3 }
+    : { mr: 'auto' },
+];
+
+const getItemTextStyle = (open) => [
+  open
+    ? { opacity: 1 }
+    : { opacity: 0 },
+];
+
+// Menyalternativ
+const getMenuItems = (navigate) => [
+  { text: 'Dashboard', icon: <DashboardIcon />, path: '/homes' },
+  { text: 'Meddelanden', icon: <MessageIcon />, path: '/message' },
+  { text: 'Notiser', icon: <NotificationsIcon />, path: '/notiser' },
+  { text: 'Ärenden', icon: <AssignmentIcon />, path: '/ärenden' },
+  { text: 'Analys', icon: <AnalyticsIcon />, path: '/analys' },
+  { text: 'Användare', icon: <PeopleIcon />, path: '/användare' },
+  { text: 'Kontakt', icon: <ContactsIcon />, path: '/Kontakt' },
+];
+
+// Komponent för ett menyalternativ
+const MenuItem = ({ text, icon, path, open, navigate }) => (
+  <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate(path)}>
+    <ListItemButton sx={getItemButtonStyle(open)}>
+      <ListItemIcon sx={getItemIconStyle(open)}>
+        {icon}
+      </ListItemIcon>
+      <ListItemText primary={text} sx={getItemTextStyle(open)} />
+    </ListItemButton>
+  </ListItem>
 );
 
 export default function Dashboard() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
   const navigate = useNavigate();
+
+  const menuItems = getMenuItems(navigate);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -89,446 +144,50 @@ export default function Dashboard() {
           </IconButton>
         </DrawerHeader>
         <Divider />
+
         <List>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/homes')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                    justifyContent: 'initial',
-                  }
-                  : {
-                    justifyContent: 'center',
-                  },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                      mr: 3,
-                    }
-                    : {
-                      mr: 'auto',
-                    },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Dashboard"
-                sx={[
-                  open
-                    ? {
-                      opacity: 1,
-                    }
-                    : {
-                      opacity: 0,
-                    },
-                ]}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/message')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                    justifyContent: 'initial',
-                  }
-                  : {
-                    justifyContent: 'center',
-                  },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                      mr: 3,
-                    }
-                    : {
-                      mr: 'auto',
-                    },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Meddelanden"
-                sx={[
-                  open
-                    ? {
-                      opacity: 1,
-                    }
-                    : {
-                      opacity: 0,
-                    },
-                ]}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/notiser')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                    justifyContent: 'initial',
-                  }
-                  : {
-                    justifyContent: 'center',
-                  },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                      mr: 3,
-                    }
-                    : {
-                      mr: 'auto',
-                    },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Notiser"
-                sx={[
-                  open
-                    ? {
-                      opacity: 1,
-                    }
-                    : {
-                      opacity: 0,
-                    },
-                ]}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/ärenden')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                    justifyContent: 'initial',
-                  }
-                  : {
-                    justifyContent: 'center',
-                  },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                      mr: 3,
-                    }
-                    : {
-                      mr: 'auto',
-                    },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Ärenden"
-                sx={[
-                  open
-                    ? {
-                      opacity: 1,
-                    }
-                    : {
-                      opacity: 0,
-                    },
-                ]}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/analys')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                    justifyContent: 'initial',
-                  }
-                  : {
-                    justifyContent: 'center',
-                  },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                      mr: 3,
-                    }
-                    : {
-                      mr: 'auto',
-                    },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Analys"
-                sx={[
-                  open
-                    ? {
-                      opacity: 1,
-                    }
-                    : {
-                      opacity: 0,
-                    },
-                ]}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/användare')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                    justifyContent: 'initial',
-                  }
-                  : {
-                    justifyContent: 'center',
-                  },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                      mr: 3,
-                    }
-                    : {
-                      mr: 'auto',
-                    },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Användare"
-                sx={[
-                  open
-                    ? {
-                      opacity: 1,
-                    }
-                    : {
-                      opacity: 0,
-                    },
-                ]}
-              />
-            </ListItemButton>
-          </ListItem>
-          
-
-          
+          {menuItems.slice(0, 6).map((item, index) => (
+            <MenuItem
+              key={index}
+              text={item.text}
+              icon={item.icon}
+              path={item.path}
+              open={open}
+              navigate={navigate}
+            />
+          ))}
         </List>
-        <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/Kontakt')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                      justifyContent: 'initial',
-                    }
-                  : {
-                      justifyContent: 'center',
-                    },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                        mr: 3,
-                      }
-                    : {
-                        mr: 'auto',
-                      },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Kontakt"
-                sx={[
-                  open
-                    ? {
-                        opacity: 1,
-                      }
-                    : {
-                        opacity: 0,
-                      },
-                ]}
-              />
-            </ListItemButton>
-          </ListItem>
+
+        <MenuItem
+          text={menuItems[6].text}
+          icon={menuItems[6].icon}
+          path={menuItems[6].path}
+          open={open}
+          navigate={navigate}
+        />
+
         <Divider />
-        <List sx={{ marginTop: 'auto' }}>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/admin')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                    justifyContent: 'initial',
-                  }
-                  : {
-                    justifyContent: 'center',
-                  },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                      mr: 3,
-                    }
-                    : {
-                      mr: 'auto',
-                    },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Admin"
-                sx={[
-                  open
-                    ? {
-                      opacity: 1,
-                    }
-                    : {
-                      opacity: 0,
-                    },
-                ]}
-              />
 
-              
-            </ListItemButton>
-          </ListItem>
+        <List sx={{ marginTop: 'auto' }}>
+          <MenuItem
+            text="Admin"
+            icon={<AdminPanelSettingsIcon />}
+            path="/admin"
+            open={open}
+            navigate={navigate}
+          />
         </List>
 
-         <List sx={{ marginTop: 'top' }}>
-          <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate('/Password')}>
-            <ListItemButton
-              sx={[
-                {
-                  minHeight: 48,
-                  px: 2.5,
-                },
-                open
-                  ? {
-                    justifyContent: 'initial',
-                  }
-                  : {
-                    justifyContent: 'center',
-                  },
-              ]}
-            >
-              <ListItemIcon
-                sx={[
-                  {
-                    minWidth: 0,
-                    justifyContent: 'center',
-                  },
-                  open
-                    ? {
-                      mr: 3,
-                    }
-                    : {
-                      mr: 'auto',
-                    },
-                ]}
-              >
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Ändra lösenord"
-                sx={[
-                  open
-                    ? {
-                      opacity: 1,
-                    }
-                    : {
-                      opacity: 0,
-                    },
-                ]}
-              />
-
-              
-            </ListItemButton>
-          </ListItem>
+        <List>
+          <MenuItem
+            text="Ändra lösenord"
+            icon={<LockIcon />}
+            path="/Password"
+            open={open}
+            navigate={navigate}
+          />
         </List>
       </Drawer>
-      
     </Box>
   );
 }

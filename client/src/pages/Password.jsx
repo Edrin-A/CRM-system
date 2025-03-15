@@ -12,69 +12,69 @@ export default function Admin() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    try {
-      // Skicka formulärdata till backend med rätt endpoint
-      const response = await fetch('/api/Newpassword', {
+
+    // Skicka formulärdata till backend med rätt endpoint
+    const response = await fetch('/api/Newpassword', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userName: userName,
+        email: email,
+        password: password,
+        newPassword: newPassword
+      })
+    });
+
+    if (response.ok) {
+      // Om lösenordet uppdaterades, skicka bekräftelsemail
+      const emailResponse = await fetch('/api/email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userName: userName,
-          email: email,
-          password: password,
-          newPassword: newPassword
+          To: email,
+          Subject: "Bekräftelse på lösenordsändring",
+          Body: `
+            <h2>Ditt lösenord har ändrats!</h2>
+            <p>Du har nu ändrat ditt lösenord.</p>
+            
+            <ul>
+              <li>Användarnamn: ${userName}</li>
+              <li>Lösenord: ${newPassword}</li>
+            </ul>
+          `
         })
       });
 
-      if (response.ok) {
-        // Om lösenordet uppdaterades, skicka bekräftelsemail
-        const emailResponse = await fetch('/api/email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            To: email,
-            Subject: "Bekräftelse på lösenordsändring",
-            Body: `
-              <h2>Ditt lösenord har ändrats!</h2>
-              <p>Du har nu ändrat ditt lösenord.</p>
-              
-              <ul>
-                <li>Användarnamn: ${userName}</li>
-                
-                <li>Lösenord: ${newPassword}</li>
-              </ul>
-              
-            `
-          })
-        });
-
-        if (emailResponse.ok) {
-          setIsSubmitted(true);
-          // Återställ formuläret
-          setUserName("");
-          setEmail("");
-          setPassword("");
-          setNewPassword("");
-        } else {
-          console.error('Email confirmation failed');
-        }
+      if (emailResponse.ok) {
+        setIsSubmitted(true);
+        // Återställ formuläret
+        setUserName("");
+        setEmail("");
+        setPassword("");
+        setNewPassword("");
       } else {
-        console.error('Password update failed');
+        alert('Lösenordet ändrades men bekräftelsemail kunde inte skickas');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Något gick fel vid uppdatering av lösenord');
+    } else {
+      try {
+        const data = await response.json();
+        // Visa det specifika felmeddelandet från servern
+        alert(data.message || 'Något gick fel vid uppdatering av lösenord');
+      } catch {
+        alert('Något gick fel vid uppdatering av lösenord');
+      }
     }
   }
 
   return (
     <div className='homeWrapper'>
       <form onSubmit={handleSubmit} className='formWrapper'>
-       <dev className='admin-logo'>
-        <PeopleAltIcon sx={{ fontSize: 90, }} />
+        <dev className='admin-logo'>
+          <PeopleAltIcon sx={{ fontSize: 90, }} />
         </dev>
         {isSubmitted ? (
           <div className="success-message">
@@ -82,8 +82,8 @@ export default function Admin() {
             <p>Kolla din e-post för bekräftelse.</p>
           </div>
         ) : (
-            <>
-              <h2>Ändra lösenord</h2>
+          <>
+            <h2>Ändra lösenord</h2>
             <div className='formGroup'>
               <label htmlFor='userName'>Användarnamn:</label>
               <input
@@ -94,9 +94,9 @@ export default function Admin() {
                 onChange={(e) => setUserName(e.target.value)}
                 required
               />
-              </div>
-              
-              <div className='formGroup'>
+            </div>
+
+            <div className='formGroup'>
               <label htmlFor='email'>Email:</label>
               <input
                 type='email'
@@ -130,17 +130,7 @@ export default function Admin() {
                 onChange={(e) => setNewpassword(e.target.value)}
                 required
               />
-              </div>
-              
-              
-
-
-
-
-
-
-            
-
+            </div>
             <Button className='SendButton-Layout' text="Skicka in" type="submit" />
           </>
         )}

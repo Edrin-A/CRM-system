@@ -222,13 +222,13 @@ export default function Layout() {
 
             <div className='formGroup'>
               <label htmlFor='message'>Meddelande:</label>
-              <input
-                className='form-medelande'
+              <textarea
+                className='form-meddelande'
                 id='message'
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 required
-              />
+              ></textarea>
             </div>
 
             <Button className='SendButton-Layout' text="Skicka in" type="submit" />
