@@ -5,9 +5,11 @@ using server.Classes;
 using server.Services;
 using server.Config;
 
+// skapar en ny ASP.NET Core applikation
 var builder = WebApplication.CreateBuilder(args);
 
-// Sessionshantering
+// sessionshantering för att spara användarinformation mellan anrop
+// viktigt för att kunna hålla reda på inloggade användare utan att behöva skicka inloggningsuppgifter varje gång
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -22,8 +24,8 @@ builder.Services.AddSingleton(db);
 
 
 // Mailkit
-// Konfigurerar e-posttjänst för att skicka bekräftelser och välkomstmeddelanden
-// Kritisk för användarregistrering och chattokenfunktionalitet
+// e-posttjänst för att skicka bekräftelser och välkomstmeddelanden
+// viktigt för användarregistrering och chattokenfunktionalitet
 var emailSettings = builder.Configuration.GetSection("Email").Get<EmailSettings>();
 if (emailSettings != null)
 {
@@ -49,18 +51,8 @@ app.MapDelete("/api/login", (Func<HttpContext, Task<IResult>>)Logout);
 //app.MapGet("/api/admin/data", () => "This is very secret admin data here..").RequireRole(Role.ADMIN);
 //app.MapGet("/api/user/data", () => "This is data that users can look at. Its not very secret").RequireRole(Role.USER);
 
-
-static async Task<IResult> PostForm(FormRequest form)
-{
-  Console.WriteLine("Form is posted..");
-  Console.WriteLine("Company: " + form.Company);
-  Console.WriteLine("Email: " + form.Email);
-  Console.WriteLine("Subject: " + form.Subject);
-  Console.WriteLine("Message: " + form.Message);
-  return Results.Ok(new { message = "Form is posted." });
-}
-
-
+// hämtar information om den inloggade användaren från sessionen
+// används för att verifiera inloggningsstatus och hämta användarinformation
 static async Task<IResult> GetLogin(HttpContext context)
 {
   Console.WriteLine("GetSession is called..Getting session");
@@ -74,8 +66,11 @@ static async Task<IResult> GetLogin(HttpContext context)
   return Results.Ok(user);
 }
 
+// hanterar inloggningsförsök genom att validera användaruppgifter mot databasen
+// begränsar inloggning till endast SUPPORT och ADMIN-roller så att USER inte kan logga in
 static async Task<IResult> Login(HttpContext context, LoginRequest request, NpgsqlDataSource db)
 {
+  // förhindrar dubbla inloggningar i samma session
   if (context.Session.GetString("User") != null)
   {
     return Results.BadRequest(new { message = "Someone is already logged in." });
@@ -102,6 +97,7 @@ static async Task<IResult> Login(HttpContext context, LoginRequest request, Npgs
             email,
             Enum.Parse<Role>(reader.GetString(reader.GetOrdinal("role")))
             );
+        // sparar användarinformation i session för framtida anrop
         await Task.Run(() => context.Session.SetString("User", JsonSerializer.Serialize(user)));
         return Results.Ok(new
         {
@@ -113,19 +109,20 @@ static async Task<IResult> Login(HttpContext context, LoginRequest request, Npgs
       }
     }
   }
-
+  // om användaren inte finns i databasen så returnerar vi ett felmeddelande
   return Results.NotFound(new { message = "Felaktigt användarnamn eller lösenord, eller så har du inte behörighet att logga in" });
 }
 
+// loggar ut användaren genom att rensa sessionen
 static async Task<IResult> Logout(HttpContext context)
 {
   if (context.Session.GetString("User") == null)
   {
-    return Results.Conflict(new { message = "No login found." });
+    return Results.Conflict(new { message = "Ingen inloggning hittad." });
   }
   Console.WriteLine("ClearSession is called..Clearing session");
   await Task.Run(context.Session.Clear);
-  return Results.Ok(new { message = "Logged out." });
+  return Results.Ok(new { message = "Utloggad." });
 }
 
 
@@ -133,6 +130,7 @@ static async Task<IResult> Logout(HttpContext context)
 
 // Mailkit
 
+// skickar ett e-postmeddelande
 app.MapPost("/api/email", SendEmail);
 
 static async Task<IResult> SendEmail(EmailRequest request, IEmailService email)
@@ -147,14 +145,14 @@ static async Task<IResult> SendEmail(EmailRequest request, IEmailService email)
 
 
 
-// Skapa customer_profiles, ticket och chattoken
-// Formulärhantering för att skapa nya kundärenden
+// skapa customer_profiles, ticket och chattoken 
+// formulärhantering för att skapa nya ärenden
 app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
 {
   try
   {
-    // 1. Skapar eller uppdaterar kundprofil baserat på e-postadress
-    // Detta möjliggör att kunder kan använda systemet utan att skapa ett lösenord
+    // 1. skapar eller uppdaterar kundprofil baserat på e-postadress
+    // detta gör så att kunder kan använda systemet utan att skapa ett lösenord
     await using var cmd1 = db.CreateCommand(@"
             INSERT INTO customer_profiles (email)
             VALUES (@email)
@@ -164,8 +162,8 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
     cmd1.Parameters.AddWithValue("@email", form.Email);
     var customerId = await cmd1.ExecuteScalarAsync();
 
-    // 2. Skapar en ny ticket och genererar en unik chat_token
-    // Denna token används för att identifiera ärendet i chattfunktionen
+    // 2. skapar en ny ticket och genererar en unik chat_token
+    // denna token används för att kunderna ska ha en länk till sitt ärende och chatta med support utan att behöva skapa ett konto
     await using var cmd2 = db.CreateCommand(@"
             INSERT INTO tickets (customer_profile_id, subject, status, product_id)
             VALUES (@customerId, @subject, 'NY', @productId)
@@ -175,7 +173,7 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
     cmd2.Parameters.AddWithValue("@productId", form.ProductId);
     var chatToken = await cmd2.ExecuteScalarAsync();
 
-    // 3. Spara första meddelandet
+    // 3. spara första meddelandet från kunden så att vi kan visa det i chatten direkt
     await using var cmd3 = db.CreateCommand(@"
             INSERT INTO messages (ticket_id, sender_type, message_text)
             VALUES ((SELECT id FROM tickets WHERE chat_token = @chatToken), 'USER', @message)");
@@ -183,13 +181,13 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
     cmd3.Parameters.AddWithValue("@message", form.Message);
     await cmd3.ExecuteNonQueryAsync();
 
-    Console.WriteLine("Chat token generated: " + chatToken); // För debugging
-                                                             // Returnerar chat_token till klienten för att möjliggöra fortsatt kommunikation
-    return Results.Ok(new { chatToken, message = "Form is posted." });
+    Console.WriteLine("Chat token generated: " + chatToken);
+
+    return Results.Ok(new { chatToken, message = "Ärendet har skapats." });
   }
   catch (Exception ex)
   {
-    // Loggar fel för felsökning och returnerar felmeddelande till klienten
+    // loggar fel för felsökning och returnerar felmeddelande till kunden
     Console.WriteLine("Error: " + ex.Message);
     return Results.BadRequest(new { message = ex.Message });
   }
@@ -198,8 +196,8 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
 
 
 
-// Hämtar meddelandehistorik för ett specifikt ärende baserat på chat_token
-// Används av chattgränssnittet för att visa konversationshistorik
+// hämtar meddelandehistorik för ett specifikt ärende baserat på chat_token
+// används av chattgränssnittet för att visa alla meddelanden i ett ärende
 app.MapGet("/api/messages/{chatToken}", async (string chatToken, NpgsqlDataSource db) =>
 {
   await using var cmd = db.CreateCommand(@"
@@ -210,6 +208,7 @@ app.MapGet("/api/messages/{chatToken}", async (string chatToken, NpgsqlDataSourc
         ORDER BY m.created_at"); //  behöver konvertera textsträngen till en UUID innan vi jämför den med databasen därför ::uuid
   cmd.Parameters.AddWithValue("@chatToken", chatToken);
 
+  // skapar en lista för att lagra meddelanden detta behövs för att kunna returnera meddelanden
   var messages = new List<Dictionary<string, object>>();
   await using var reader = await cmd.ExecuteReaderAsync();
   while (await reader.ReadAsync())
@@ -225,17 +224,18 @@ app.MapGet("/api/messages/{chatToken}", async (string chatToken, NpgsqlDataSourc
   return Results.Ok(messages);
 });
 
-// Lägger till ett nytt meddelande i ett befintligt ärende
-// Behöver uppdateras för att hantera olika avsändartyper (USER, SUPPORT, ADMIN)
+// lägger till ett nytt meddelande i ett befintligt ärende
+// behöver uppdateras för att hantera olika avsändartyper (USER, SUPPORT, ADMIN)
 app.MapPost("/api/messages/{chatToken}", async (string chatToken, MessageRequest request, NpgsqlDataSource db) =>
 {
-  // Validera senderType för att säkerställa att det är ett giltigt värde
+  // validera senderType för att säkerställa att det är ett giltigt värde
+  // defaultar till USER om inget annat anges för att förhindra felaktiga värden
   string senderType = request.SenderType ?? "USER";
 
-  // Kontrollera att senderType är ett giltigt role-värde
+  // kontrollera att senderType är ett giltigt role värde
   if (!Enum.TryParse<Role>(senderType, out _))
   {
-    senderType = "USER"; // Fallback till USER om ogiltig roll
+    senderType = "USER"; // fallback till USER om ogiltig roll
   }
 
   await using var cmd = db.CreateCommand(@"
@@ -260,7 +260,7 @@ app.MapPatch("/api/tickets/{id}/status", async (int id, TicketStatusUpdate reque
     await using var cmd = db.CreateCommand(@"
             UPDATE tickets 
             SET status = @status::ticket_status,
-                updated_at = CURRENT_TIMESTAMP
+            updated_at = CURRENT_TIMESTAMP
             WHERE id = @id");
 
     cmd.Parameters.AddWithValue("@id", id);
@@ -268,6 +268,7 @@ app.MapPatch("/api/tickets/{id}/status", async (int id, TicketStatusUpdate reque
 
     int rowsAffected = await cmd.ExecuteNonQueryAsync();
 
+    // kontrollerar om ärendet finns i databasen
     if (rowsAffected == 0)
     {
       return Results.NotFound();
@@ -282,10 +283,14 @@ app.MapPatch("/api/tickets/{id}/status", async (int id, TicketStatusUpdate reque
   }
 });
 
+
+// hämtar alla ärenden för översikt
+// används i ärendelistan för att visa alla aktiva ärenden
 app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
 {
   try
   {
+    // hämtar relevant information från flera tabeller för att ge en komplett bild av ärendena
     await using var cmd = db.CreateCommand(@"
             SELECT 
                 t.id,
@@ -325,7 +330,8 @@ app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
   }
 });
 
-// Endpoint för att hämta produkter för ett specifikt företag
+// endpoint för att hämta produkter för ett specifikt företag
+// används i formuläret för att låta kunder välja vilken produkt ärendet gäller
 app.MapGet("/api/companies/{companyId}/products", async (int companyId, NpgsqlDataSource db) =>
 {
   try
@@ -360,7 +366,8 @@ app.MapGet("/api/companies/{companyId}/products", async (int companyId, NpgsqlDa
   }
 });
 
-// Endpoint för att hämta alla företag
+// endpoint för att hämta alla företag
+// används i formuläret för att låta kunder välja vilket företag de vill kontakta
 app.MapGet("/api/companies", async (NpgsqlDataSource db) =>
 {
   try
