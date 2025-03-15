@@ -22,7 +22,7 @@ export default function Signin() {
     const data = await response.json()
     if (response.ok) {
       await getLogin()
-      navigate("/homes") // Eller annan lämplig sida efter inloggning
+      navigate("/homes") // skicka till startsidan
     } else {
       alert(data.message || "Inloggning misslyckades")
     }

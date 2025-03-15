@@ -11,8 +11,10 @@ import Layout from './pages/Layout'
 import Admin from './pages/Admin'
 import ChatPage from './pages/ChatPage'
 import Password from './pages/Password'
+import ProtectedRoute from './Components/ProtectedRoute'
 
 
+// för routes som kräver inloggning men inte en specifik roll använder vi bara <ProtectedRoute> utan att ange requiredRole
 function App() {
   return (
     <BrowserRouter>
@@ -21,13 +23,41 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/homes" element={<Homes />} />
-        <Route path="/ärenden" element={<Arenden />} />
-        <Route path="/analys" element={<Analys />} />
-        <Route path="/message" element={<Message />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/Password" element={<Password />} />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/homes" element={
+          <ProtectedRoute requiredRole="SUPPORT">
+            <Homes />
+          </ProtectedRoute>
+        } />
+        <Route path="/ärenden" element={
+          <ProtectedRoute requiredRole="SUPPORT">
+            <Arenden />
+          </ProtectedRoute>
+        } />
+        <Route path="/analys" element={
+          <ProtectedRoute requiredRole="SUPPORT">
+            <Analys />
+          </ProtectedRoute>
+        } />
+        <Route path="/message" element={
+          <ProtectedRoute requiredRole="SUPPORT">
+            <Message />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={
+          <ProtectedRoute requiredRole="ADMIN">
+            <Admin />
+          </ProtectedRoute>
+        } />
+        <Route path="/Password" element={
+          <ProtectedRoute requiredRole="SUPPORT">
+            <Password />
+          </ProtectedRoute>
+        } />
         <Route path="/chat/:chatToken" element={<ChatPage />} />
       </Routes>
     </BrowserRouter>
