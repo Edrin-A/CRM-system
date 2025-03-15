@@ -15,11 +15,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import MessageIcon from '@mui/icons-material/Message';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
-import PeopleIcon from '@mui/icons-material/People';
-import ContactsIcon from '@mui/icons-material/Contacts';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import LockIcon from '@mui/icons-material/Lock';
 import Navbar from './Navbar';
@@ -107,11 +104,8 @@ const getItemTextStyle = (open) => [
 const getMenuItems = (navigate) => [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/homes' },
   { text: 'Meddelanden', icon: <MessageIcon />, path: '/message' },
-  { text: 'Notiser', icon: <NotificationsIcon />, path: '/notiser' },
   { text: 'Ärenden', icon: <AssignmentIcon />, path: '/ärenden' },
   { text: 'Analys', icon: <AnalyticsIcon />, path: '/analys' },
-  { text: 'Användare', icon: <PeopleIcon />, path: '/användare' },
-  { text: 'Kontakt', icon: <ContactsIcon />, path: '/Kontakt' },
 ];
 
 // Komponent för ett menyalternativ
@@ -146,7 +140,7 @@ export default function Dashboard() {
         <Divider />
 
         <List>
-          {menuItems.slice(0, 6).map((item, index) => (
+          {menuItems.map((item, index) => (
             <MenuItem
               key={index}
               text={item.text}
@@ -157,14 +151,6 @@ export default function Dashboard() {
             />
           ))}
         </List>
-
-        <MenuItem
-          text={menuItems[6].text}
-          icon={menuItems[6].icon}
-          path={menuItems[6].path}
-          open={open}
-          navigate={navigate}
-        />
 
         <Divider />
 
