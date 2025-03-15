@@ -13,7 +13,8 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    role role NOT NULL
+    role role NOT NULL,
+    company_id INTEGER REFERENCES companies(id)
 );
 
 
@@ -70,6 +71,7 @@ CREATE TABLE feedback (
 
 INSERT INTO users (username, password, email, role) VALUES ('admin', 'admin', 'admin@test.com', 'ADMIN');
 INSERT INTO users (username, password, email, role) VALUES ('support1', 'support1', 'support1@test.com', 'SUPPORT');
+INSERT INTO users (username, password, email, role) VALUES ('support2', 'support2', 'support2@test.com', 'SUPPORT');
 INSERT INTO users (username, password, email, role) VALUES ('user', 'user', 'user@test.com', 'USER');
 
 

@@ -35,6 +35,13 @@
   /* Öka marginalen mellan bilden och input-fälten */
 }
 
+.people-logo {
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 120px;
+  /* Öka marginalen mellan bilden och input-fälten */
+}
+
 .Logo {
   max-width: 200px;
   height: auto;

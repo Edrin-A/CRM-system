@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -20,6 +20,7 @@ import AnalyticsIcon from '@mui/icons-material/Analytics';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import LockIcon from '@mui/icons-material/Lock';
 import Navbar from './Navbar';
+
 
 // Konstanter
 const drawerWidth = 240;
@@ -122,7 +123,7 @@ const MenuItem = ({ text, icon, path, open, navigate }) => (
 
 export default function Dashboard() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = useState(true);
   const navigate = useNavigate();
 
   const menuItems = getMenuItems(navigate);

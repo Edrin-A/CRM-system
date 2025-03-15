@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Button from '../Components/button';
 import '../index.css'; // Importera index.css för att använda de uppdaterade stilarna
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 
-export default function Admin() {
+export default function NewPassword() {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -73,9 +73,9 @@ export default function Admin() {
   return (
     <div className='homeWrapper'>
       <form onSubmit={handleSubmit} className='formWrapper'>
-        <dev className='admin-logo'>
+        <div className='people-logo'>
           <PeopleAltIcon sx={{ fontSize: 90, }} />
-        </dev>
+        </div>
         {isSubmitted ? (
           <div className="success-message">
             <h3>Du har nu ändrat ditt lösenord!</h3>
@@ -138,5 +138,3 @@ export default function Admin() {
     </div>
   );
 }
-
-

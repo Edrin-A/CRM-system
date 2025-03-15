@@ -1,5 +1,4 @@
-import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import Button from '../Components/button';
 import Shape from '../assets/Shape.png';
 import '../index.css'; // Importera index.css för att använda de uppdaterade stilarna
@@ -31,4 +30,3 @@ const Home = () => {
 };
 
 export default Home;
-

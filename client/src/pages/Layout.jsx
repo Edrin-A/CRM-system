@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import Button from '../Components/button';
 import '../index.css'; // Importera index.css för att använda de uppdaterade stilarna
@@ -149,7 +149,7 @@ export default function Layout() {
   return (
     <div className='homeWrapper'>
       <div className='buttonWrapper-Layout'>
-        <Button className='SigninButton-Layout' text="Sign In" onClick={handleOnHome} />
+        <Button className='SigninButton-Layout' text="Logga in" onClick={handleOnHome} />
       </div>
       <form onSubmit={handleSubmit} className='formWrapper'>
         <div className='Logo-Layout'>
@@ -238,4 +238,3 @@ export default function Layout() {
     </div>
   );
 }
-

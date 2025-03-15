@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useContext } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -11,7 +11,7 @@ import { GlobalContext } from '../GlobalContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function Navbar() {
-  const { logout, user } = React.useContext(GlobalContext);
+  const { logout, user } = useContext(GlobalContext);
   const navigate = useNavigate();
 
   const handleLogout = async () => {

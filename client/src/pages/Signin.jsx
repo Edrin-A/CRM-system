@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { GlobalContext } from "../GlobalContext.jsx"
 import { useNavigate } from 'react-router';
 import '../index.css'; // Importera index.css för att använda de uppdaterade stilarna 
