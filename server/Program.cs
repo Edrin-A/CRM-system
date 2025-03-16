@@ -201,11 +201,11 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
 app.MapGet("/api/messages/{chatToken}", async (string chatToken, NpgsqlDataSource db) =>
 {
   await using var cmd = db.CreateCommand(@"
-        SELECT m.* 
-        FROM messages m
-        JOIN tickets t ON t.id = m.ticket_id
-        WHERE t.chat_token = @chatToken::uuid
-        ORDER BY m.created_at"); //  behöver konvertera textsträngen till en UUID innan vi jämför den med databasen därför ::uuid
+        SELECT messages.id, messages.ticket_id, messages.sender_type, messages.message_text, messages.created_at
+        FROM messages
+        JOIN tickets ON tickets.id = messages.ticket_id
+        WHERE tickets.chat_token = @chatToken::uuid
+        ORDER BY messages.created_at"); // behöver konvertera textsträngen till en UUID innan vi jämför den med databasen därför ::uuid
   cmd.Parameters.AddWithValue("@chatToken", chatToken);
 
   // skapar en lista för att lagra meddelanden detta behövs för att kunna returnera meddelanden
@@ -216,8 +216,9 @@ app.MapGet("/api/messages/{chatToken}", async (string chatToken, NpgsqlDataSourc
     messages.Add(new Dictionary<string, object>
         {
             { "id", reader.GetInt32(0) },
-            { "message_text", reader.GetString(3) },
+            { "ticket_id", reader.GetInt32(1) },
             { "sender_type", reader.GetString(2) },
+            { "message_text", reader.GetString(3) },
             { "created_at", reader.GetDateTime(4) }
         });
   }
@@ -240,11 +241,8 @@ app.MapPost("/api/messages/{chatToken}", async (string chatToken, MessageRequest
 
   await using var cmd = db.CreateCommand(@"
         INSERT INTO messages (ticket_id, sender_type, message_text)
-        VALUES (
-            (SELECT id FROM tickets WHERE chat_token = @chatToken::uuid),
-            @senderType::role,
-            @message
-        )"); //  lagt till ::role efter @senderType för att konvertera textsträngen till enum-typen role annars kommer det att ge ett fel
+        VALUES ((SELECT id FROM tickets WHERE chat_token = @chatToken::uuid), @senderType::role, @message)");
+
   cmd.Parameters.AddWithValue("@chatToken", chatToken);
   cmd.Parameters.AddWithValue("@senderType", senderType);
   cmd.Parameters.AddWithValue("@message", request.Message);
@@ -308,25 +306,21 @@ app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
     var companyIdResult = await userCmd.ExecuteScalarAsync();
 
     string query = @"
-            SELECT 
-                t.id,
-                t.status,
-                t.subject,
-                t.chat_token,
-                cp.email as customer_email,
-                c.name as company_name
-            FROM tickets t
-            JOIN customer_profiles cp ON t.customer_profile_id = cp.id
-            JOIN products p ON t.product_id = p.id
-            JOIN companies c ON p.company_id = c.id";
+            SELECT tickets.id, tickets.status, tickets.subject, tickets.chat_token,
+                   customer_profiles.email as customer_email,
+                   companies.name as company_name
+            FROM tickets
+            JOIN customer_profiles ON tickets.customer_profile_id = customer_profiles.id
+            JOIN products ON tickets.product_id = products.id
+            JOIN companies ON products.company_id = companies.id";
 
     // Om användaren är support och har ett företag, filtrera tickets baserat på företag
     if (user.Role == Role.SUPPORT && companyIdResult != null && companyIdResult != DBNull.Value)
     {
-      query += " WHERE p.company_id = @companyId";
+      query += " WHERE products.company_id = @companyId";
     }
 
-    query += " ORDER BY t.created_at DESC";
+    query += " ORDER BY tickets.created_at DESC";
 
     await using var cmd = db.CreateCommand(query);
 
