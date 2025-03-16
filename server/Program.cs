@@ -4,6 +4,7 @@ using server;
 using server.Classes;
 using server.Services;
 using server.Config;
+using server.Extensions;
 
 // skapar en ny ASP.NET Core applikation
 var builder = WebApplication.CreateBuilder(args);
@@ -42,14 +43,13 @@ var app = builder.Build();
 app.UseSession();
 
 // API-endpoints för autentisering 
-app.MapGet("/", () => "Hello World!");
+// kontrollerar om användaren är inloggad 
 app.MapGet("/api/login", (Func<HttpContext, Task<IResult>>)GetLogin);
+// loggar in användaren
 app.MapPost("/api/login", (Func<HttpContext, LoginRequest, NpgsqlDataSource, Task<IResult>>)Login);
+// loggar ut användaren
 app.MapDelete("/api/login", (Func<HttpContext, Task<IResult>>)Logout);
 
-
-//app.MapGet("/api/admin/data", () => "This is very secret admin data here..").RequireRole(Role.ADMIN);
-//app.MapGet("/api/user/data", () => "This is data that users can look at. Its not very secret").RequireRole(Role.USER);
 
 // hämtar information om den inloggade användaren från sessionen
 // används för att verifiera inloggningsstatus och hämta användarinformation
@@ -253,6 +253,7 @@ app.MapPost("/api/messages/{chatToken}", async (string chatToken, MessageRequest
 });
 
 // Uppdatera status för ett ärende
+// endast SUPPORT och ADMIN bör kunna uppdatera ärendestatus
 app.MapPatch("/api/tickets/{id}/status", async (int id, TicketStatusUpdate request, NpgsqlDataSource db) =>
 {
   try
@@ -281,17 +282,32 @@ app.MapPatch("/api/tickets/{id}/status", async (int id, TicketStatusUpdate reque
     Console.WriteLine("Error updating ticket status: " + ex.Message);
     return Results.BadRequest(new { message = ex.Message });
   }
-});
+}).RequireRole(Role.SUPPORT);
 
 
 // hämtar alla ärenden för översikt
 // används i ärendelistan för att visa alla aktiva ärenden
+// endast SUPPORT och ADMIN bör ha tillgång till denna data
 app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
 {
   try
   {
-    // hämtar relevant information från flera tabeller för att ge en komplett bild av ärendena
-    await using var cmd = db.CreateCommand(@"
+    // Hämta användarinformation från sessionen
+    var userJson = context.Session.GetString("User");
+    if (userJson == null)
+    {
+      return Results.Unauthorized();
+    }
+
+    var user = JsonSerializer.Deserialize<User>(userJson);
+
+    // Hämta användarens company_id från databasen för att kunna filtrera tickets
+    await using var userCmd = db.CreateCommand(@"
+            SELECT company_id FROM users WHERE id = @userId");
+    userCmd.Parameters.AddWithValue("@userId", user.Id);
+    var companyIdResult = await userCmd.ExecuteScalarAsync();
+
+    string query = @"
             SELECT 
                 t.id,
                 t.status,
@@ -302,8 +318,23 @@ app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
             FROM tickets t
             JOIN customer_profiles cp ON t.customer_profile_id = cp.id
             JOIN products p ON t.product_id = p.id
-            JOIN companies c ON p.company_id = c.id
-            ORDER BY t.created_at DESC");
+            JOIN companies c ON p.company_id = c.id";
+
+    // Om användaren är support och har ett företag, filtrera tickets baserat på företag
+    if (user.Role == Role.SUPPORT && companyIdResult != null && companyIdResult != DBNull.Value)
+    {
+      query += " WHERE p.company_id = @companyId";
+    }
+
+    query += " ORDER BY t.created_at DESC";
+
+    await using var cmd = db.CreateCommand(query);
+
+    // Lägg till parameter om vi filtrerar på företag
+    if (user.Role == Role.SUPPORT && companyIdResult != null && companyIdResult != DBNull.Value)
+    {
+      cmd.Parameters.AddWithValue("@companyId", companyIdResult);
+    }
 
     var tickets = new List<Dictionary<string, object>>();
     await using var reader = await cmd.ExecuteReaderAsync();
@@ -328,7 +359,7 @@ app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
     Console.WriteLine("Error fetching tickets: " + ex.Message);
     return Results.BadRequest(new { message = ex.Message });
   }
-});
+}).RequireRole(Role.SUPPORT);
 
 // endpoint för att hämta produkter för ett specifikt företag
 // används i formuläret för att låta kunder välja vilken produkt ärendet gäller
@@ -400,72 +431,75 @@ app.MapGet("/api/companies", async (NpgsqlDataSource db) =>
 });
 
 // Byta lösenord
+// endast inloggade användare bör kunna ändra lösenord
 app.MapPost("/api/Newpassword", async (PasswordRequest request, NpgsqlDataSource db) =>
 {
-    try
-    {
-        // Verifiera att användaren finns och att nuvarande lösenord är korrekt
-        await using var verifyCmd = db.CreateCommand(@"
+  try
+  {
+    // Verifiera att användaren finns och att nuvarande lösenord är korrekt
+    await using var verifyCmd = db.CreateCommand(@"
             SELECT id FROM users 
             WHERE email = @email AND password = @password");
-        
-        verifyCmd.Parameters.AddWithValue("@email", request.email);
-        verifyCmd.Parameters.AddWithValue("@password", request.password);
-        
-        var userId = await verifyCmd.ExecuteScalarAsync();
-        
-        if (userId == null)
-        {
-            return Results.BadRequest(new { message = "Felaktigt lösenord eller e-post" });
-        }
-        
-        // Uppdatera lösenordet
-        await using var updateCmd = db.CreateCommand(@"
+
+    verifyCmd.Parameters.AddWithValue("@email", request.email);
+    verifyCmd.Parameters.AddWithValue("@password", request.password);
+
+    var userId = await verifyCmd.ExecuteScalarAsync();
+
+    if (userId == null)
+    {
+      return Results.BadRequest(new { message = "Felaktigt lösenord eller e-post" });
+    }
+
+    // Uppdatera lösenordet
+    await using var updateCmd = db.CreateCommand(@"
             UPDATE users 
             SET password = @newPassword
             WHERE id = @userId");
-        
-        updateCmd.Parameters.AddWithValue("@newPassword", request.newPassword);
-        updateCmd.Parameters.AddWithValue("@userId", userId);
-        
-        int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
-        
-        if (rowsAffected > 0)
-        {
-            return Results.Ok(new { message = "Lösenord uppdaterat" });
-        }
-        
-        return Results.BadRequest(new { message = "Kunde inte uppdatera lösenordet" });
-    }
-    catch (Exception ex)
+
+    updateCmd.Parameters.AddWithValue("@newPassword", request.newPassword);
+    updateCmd.Parameters.AddWithValue("@userId", userId);
+
+    int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+
+    if (rowsAffected > 0)
     {
-        Console.WriteLine("Error updating password: " + ex.Message);
-        return Results.BadRequest(new { message = ex.Message });
+      return Results.Ok(new { message = "Lösenord uppdaterat" });
     }
-});
+
+    return Results.BadRequest(new { message = "Kunde inte uppdatera lösenordet" });
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error updating password: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+}).RequireRole(Role.SUPPORT);
 
 
 // Skapa en ny supportanvändare
+// endast ADMIN bör kunna skapa nya supportanvändare
 app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) =>
 {
   try
   {
     await using var cmd = db.CreateCommand(@"
-            INSERT INTO users (username, password, email, role)
-            VALUES (@username, @password, @email, @role::role)");
+            INSERT INTO users (username, password, email, role, company_id)
+            VALUES (@username, @password, @email, @role::role, @companyId)");
     cmd.Parameters.AddWithValue("@username", admin.Username);
     cmd.Parameters.AddWithValue("@password", admin.Password);
     cmd.Parameters.AddWithValue("@email", admin.Email);
     cmd.Parameters.AddWithValue("@role", admin.Role);
+    cmd.Parameters.AddWithValue("@companyId", admin.CompanyId);
     await cmd.ExecuteNonQueryAsync();
 
-    return Results.Ok(new { message = "Admin user created." });
+    return Results.Ok(new { message = "Support user created." });
   }
   catch (Exception ex)
   {
     Console.WriteLine("Error: " + ex.Message);
     return Results.BadRequest(new { message = ex.Message });
   }
-});
+}).RequireRole(Role.ADMIN);
 
 await app.RunAsync();

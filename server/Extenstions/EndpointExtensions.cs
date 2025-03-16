@@ -19,7 +19,8 @@ public static class EndpointExtensions
 
       var user = System.Text.Json.JsonSerializer.Deserialize<User>(userJson);
 
-      if (user == null || user.Role != role)
+      // kontrollera om användaren har rätt roll eller är ADMIN(som har tillgång till allt)
+      if (user == null || (user.Role != role && user.Role != Role.ADMIN))
       {
         return Results.Forbid();
       }

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { GlobalContext } from "../GlobalContext.jsx"
 import { useNavigate } from 'react-router';
 import '../index.css'; // Importera index.css för att använda de uppdaterade stilarna 
@@ -22,7 +22,7 @@ export default function Signin() {
     const data = await response.json()
     if (response.ok) {
       await getLogin()
-      navigate("/homes") // Eller annan lämplig sida efter inloggning
+      navigate("/homes") // skicka till startsidan
     } else {
       alert(data.message || "Inloggning misslyckades")
     }
