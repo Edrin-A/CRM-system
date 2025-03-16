@@ -6,7 +6,6 @@
   height: 100vh;
   background-color: #fdfdfd;
   padding: 20px;
-  /* Lägg till padding */
 }
 
 .contentWrapper {
@@ -15,7 +14,6 @@
   justify-content: center;
   align-items: center;
   padding: 50px;
-  /* Lägg till padding */
   background-color: rgb(235, 235, 232);
   border-radius: 30px;
 }
@@ -82,9 +80,7 @@
 
 .SigninButton-home {
   background-color: rgb(240, 240, 245);
-  /* Ändra bakgrundsfärg till blå */
   color: rgb(40, 3, 252);
-  /* Ändra textfärg till vit */
   border: none;
   padding: 10px 40px;
   cursor: pointer;
@@ -96,9 +92,7 @@
 .SigninButton,
 .SignupButton {
   background: linear-gradient(90deg, #f707ff 0%, #3700ff 100%);
-  /* Ändra bakgrundsfärg till blå */
   color: white;
-  /* Ändra textfärg till vit */
   border: none;
   padding: 10px 40px;
   cursor: pointer;
@@ -107,11 +101,8 @@
 }
 
 .SendButton-Layout {
-
   background: linear-gradient(90deg, #f707ff 0%, #3700ff 100%);
-  /* Ändra bakgrundsfärg till blå */
   color: white;
-  /* Ändra textfärg till vit */
   border: none;
   padding: 10px 40px;
   cursor: pointer;
@@ -140,7 +131,6 @@
 
 .SignupButton:hover {
   background-color: darkblue;
-  /* Effekt vid hover */
 }
 
 .signup-title,
@@ -149,16 +139,13 @@
   /* Öka avståndet mellan knapparna och texten */
   margin-bottom: 50px;
   color: rgb(69, 69, 245);
-  /* Ändra textfärg till blå */
   text-align: center;
   font-size: 50px;
 }
 
 .SigninButton-Layout {
   background-color: rgb(240, 240, 245);
-  /* Ändra bakgrundsfärg till blå */
   color: rgb(40, 3, 252);
-  /* Ändra textfärg till vit */
   border: none;
   padding: 10px 40px;
   cursor: pointer;
@@ -168,34 +155,14 @@
 
 .buttonWrapper-Layout {
   position: absolute;
-  /* Positionera elementet absolut */
   top: 20px;
-  /* Placera elementet 20px från toppen */
   right: 20px;
-  /* Placera elementet 20px från höger */
   display: flex;
   justify-content: flex-end;
 }
 
 .SigninButton-Layout {
   background-color: rgb(240, 240, 245);
-  /* Ändra bakgrundsfärg till blå /
-      color: rgb(40, 3, 252);
-      / Ändra textfärg till vit /
-      border: none;
-      padding: 10px 40px;
-      cursor: pointer;
-      border-radius: 10px;
-      transition: background-color 0.3s;
-}
-
-.buttonWrapper-Layout {
-  position: absolute;
-    / Positionera elementet absolut /
-    top: 20px;
-    / Placera elementet 20px från toppen /
-    right: 20px;
-    / Placera elementet 20px från höger */
   display: flex;
   justify-content: flex-end;
 }
@@ -232,7 +199,6 @@
   justify-content: center;
   align-items: center;
   padding: 25px;
-  /* Lägg till padding */
   background-color: rgb(235, 235, 232);
   border-radius: 30px;
 }
