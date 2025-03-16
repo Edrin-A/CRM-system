@@ -341,3 +341,86 @@
 .send-button-ChatPage:hover {
   background-color: #1565c0;
 }
+
+/* Ärenden*/
+.page-container {
+  display: flex;
+}
+
+.navbar-spacer {
+  height: 70px;
+}
+
+.main-content {
+  flex-grow: 1;
+  padding: 24px;
+}
+
+.page-title {
+  font-size: 2rem;
+  margin-bottom: 24px;
+  font-weight: 400;
+}
+
+/* Ärendelista */
+.tickets-container {
+  width: 100%;
+}
+
+.ticket-item {
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ticket-field {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Länkstilar */
+.chat-link {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.chat-link:hover {
+  text-decoration: underline;
+}
+
+/* Select-styling */
+.select-container {
+  min-width: 120px;
+}
+
+.status-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.875rem;
+}
+
+/* Status-färger */
+.status-select option[value="NY"] {
+  color: #ff9800;
+}
+
+.status-select option[value="PÅGÅENDE"] {
+  color: #2196f3;
+}
+
+.status-select option[value="LÖST"] {
+  color: #4caf50;
+}
+
+.status-select option[value="STÄNGD"] {
+  color: #9e9e9e;
+}

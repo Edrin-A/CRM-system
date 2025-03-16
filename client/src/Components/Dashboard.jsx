@@ -105,7 +105,7 @@ const getItemTextStyle = (open) => [
 const getMenuItems = (navigate) => [
   { text: 'Dashboard', icon: <DashboardIcon />, path: '/homes' },
   { text: 'Meddelanden', icon: <MessageIcon />, path: '/message' },
-  { text: 'Ärenden', icon: <AssignmentIcon />, path: '/ärenden' },
+  { text: 'Ärenden', icon: <AssignmentIcon />, path: '/arenden' },
   { text: 'Analys', icon: <AnalyticsIcon />, path: '/analys' },
 ];
 
