@@ -476,21 +476,21 @@ app.MapPost("/api/Newpassword", async (PasswordRequest request, NpgsqlDataSource
   }
 }).RequireRole(Role.SUPPORT);
 
-
-// Skapa en ny supportanvändare
-// endast ADMIN bör kunna skapa nya supportanvändare
-app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) =>
+// denhär koden Skapar  api- som tar emot data för att skapa nya användare
+// När någon skickar data hit körs koden nedan för att spara användaren i databasen
+app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) => // Tar emot användardata 
 {
   try
   {
+    // Skapar en SQL-fråga för att lägga till en ny användare i databasen
     await using var cmd = db.CreateCommand(@"
             INSERT INTO users (username, password, email, role, company_id)
             VALUES (@username, @password, @email, @role::role, @companyId)");
+    // Lägger till parametrar för att förhindra SQL-injektion
     cmd.Parameters.AddWithValue("@username", admin.Username);
     cmd.Parameters.AddWithValue("@password", admin.Password);
     cmd.Parameters.AddWithValue("@email", admin.Email);
-    cmd.Parameters.AddWithValue("@role", admin.Role);
-    cmd.Parameters.AddWithValue("@companyId", admin.CompanyId);
+    cmd.Parameters.AddWithValue("@role", admin.Role); // Konverterar rolltexten till databastypen "role" för att säkerställa giltigt värde
     await cmd.ExecuteNonQueryAsync();
 
     return Results.Ok(new { message = "Support user created." });

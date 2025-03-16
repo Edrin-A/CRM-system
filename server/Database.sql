@@ -106,3 +106,11 @@ INSERT INTO products (name, description, company_id) VALUES
  (SELECT id FROM companies WHERE name = 'Sport AB')),
 ('Adidas sneakers', 'Sneakers med stil',
  (SELECT id FROM companies WHERE name = 'Sport AB'));
+
+
+ALTER TABLE users
+ADD COLUMN company_id INTEGER REFERENCES companies(id) NULL;
+
+UPDATE users
+SET company_id = (SELECT id FROM companies WHERE name = 'Godisfabriken AB')
+WHERE username = 'support1' AND role = 'SUPPORT';

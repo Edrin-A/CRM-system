@@ -1,3 +1,5 @@
+//analysl sidan är lik tabell sidan där vi har skapat och visar en graf och en tabell med företagsinformation.
+// och importerat samma komponenter som i tabell sidan.
 import React from 'react';
 import Dashboard from '../Components/Dashboard';
 import Navbar from '../Components/Navbar';  // Importera Navbar-komponenten 
@@ -25,6 +27,7 @@ export default function Analys() {
        <Grid container spacing={2}>
             <Grid item xs={8}>
               <Stack spacing={2} direction="row" > 
+                {/* delat upp med card (container) för varje kort*/}
                 <Card sx={{ minWidth: 345, height: 15 + 'vh' }} className="gradient-card">           
                   <CardContent>
                     <div className='icon'>

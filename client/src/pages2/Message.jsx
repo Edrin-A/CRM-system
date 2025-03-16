@@ -16,10 +16,10 @@ export default function Message() { // Skapar en funktion som heter Message som 
   const [input, setInput] = useState(''); // Skapar en state-variabel för att lagra texten som skrivs in
   const [currentUser, setCurrentUser] = useState('User1'); // Skapar en state-variabel för att hålla reda på vilken användare som skickar meddelandet
   const [selectedUser, setSelectedUser] = useState('Edrin'); // Skapar en state-variabel för att hålla reda på vilken användare som är vald att skicka meddelanden till
-  const users = ['Edrin', 'Hiwan', 'Farzad', 'Isac']; // Skapar en lista med användare som man kan skicka meddelanden till
+  const users = ['Edrin', 'Hiwan', 'Farzad', 'Isac']; // Skapar en lista med användare 
 
   const handleSendMessage = () => { // Skapar en funktion som hanterar att skicka meddelanden
-    if (input.trim()) { // Kollar om texten som skrivits in inte är tom
+    if (input.trim()) { // Kollar om det har skrivits in text eller inte
       setMessages([...messages, { text: input, sender: currentUser, receiver: selectedUser }]); // Lägger till det nya meddelandet i listan med meddelanden
       setInput(''); // Tömmer textfältet
       setCurrentUser(currentUser === 'User1' ? 'User2' : 'User1'); // Växlar mellan User1 och User2 efter att ett meddelande skickats
@@ -28,30 +28,30 @@ export default function Message() { // Skapar en funktion som heter Message som 
 
   return ( // Returnerar JSX som beskriver hur komponenten ska se ut
     <>
-      <Navbar /> {/* Visar Navbar-komponenten */}
-      <Box height={70} /> {/* Skapar en tom box med höjden 70 pixlar */}
+      <Navbar /> 
+      <Box height={70} />
       <Box sx={{ display: 'flex' }}> {/* Skapar en box som innehåller Dashboard och huvudområdet */}
-        <Dashboard /> {/* Visar Dashboard-komponenten */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}> {/* Skapar en huvudbox som växer och har padding */}
-          <Typography variant="h4" gutterBottom> {/* Visar en rubrik med texten "Chat" */}
+        <Dashboard /> 
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Typography variant="h4" gutterBottom> 
             Chatt
           </Typography>
           <Box sx={{ display: 'flex' }}> {/* Skapar en box som innehåller användarlistan och meddelandeområdet */}
             <Box sx={{ width: '15%', borderRight: '1px solid #ccc', borderRadius: 1, boxShadow: 3, p: 2, bgcolor: 'background.paper' }}> {/* Skapar en inramad och skuggad box för användarlistan */}
-              <List> {/* Skapar en lista med användare på vänster sida */}
+              <List> 
                 {users.map((user, index) => ( // Loopar igenom användarlistan och skapar en knapp för varje användare
                   <ListItemButton
                     key={index} // Sätter en unik nyckel för varje knapp
                     selected={selectedUser === user} // Markerar knappen om användaren är vald
-                    onClick={() => setSelectedUser(user)} // Ändrar vald användare när knappen klickas
+                    onClick={() => setSelectedUser(user)} // Ändrar användare på den valda knappen när knappen klickas
                   >
                     <ListItemText primary={user} /> {/* Visar användarnamnet */}
                   </ListItemButton>
                 ))}
               </List>
             </Box>
-            <Box sx={{ flexGrow: 1, pl: 2 }}> {/* Skapar en box för meddelandeområdet som växer och har padding till vänster */}
-              <List sx={{ maxHeight: '60vh', overflow: 'auto', mb: 2 }}> {/* Skapar en lista för att visa meddelanden med maxhöjd och rullningsbar */}
+            <Box sx={{ flexGrow: 1, pl: 2 }}> {/* Skapar en box för meddelanderutan som jag kan styla på*/}
+              <List sx={{ maxHeight: '90vh', overflow: 'auto', mb: 2 }}> {/* Skapar en lista för att visa meddelanden med maxhöjd och rullningsbar */}
                 {messages
                   .filter((message) => message.receiver === selectedUser || message.sender === selectedUser) // Filtrerar meddelanden för att bara visa de som är skickade till eller från vald användare
                   .map((message, index) => ( // Loopar igenom filtrerade meddelanden och skapar en listpost för varje meddelande
@@ -64,8 +64,8 @@ export default function Message() { // Skapar en funktion som heter Message som 
                       <Paper
                         sx={{
                           backgroundColor: message.sender === 'User1' ? 'white' : '#007bff', // Sätter bakgrundsfärgen till vit för User1 och blå för andra användare
-                          padding: 1, // Sätter padding till 1
-                          width: '40%', // Sätter bredden till 40%
+                          padding: 1, 
+                          width: '40%', 
                         }}
                       >
                         <ListItemText primary={message.text} secondary={message.sender} /> {/* Visar meddelandetexten och avsändaren */}
@@ -77,7 +77,7 @@ export default function Message() { // Skapar en funktion som heter Message som 
                 <TextField
                   fullWidth
                   variant="outlined"
-                  placeholder="Skriv ett meddelande..." // Sätter en platshållartext i textfältet
+                  placeholder="Skriv ett meddelande..." 
                   value={input} // Sätter värdet i textfältet till input state-variabeln
                   onChange={(e) => setInput(e.target.value)} // Uppdaterar input state-variabeln när texten ändras
                   onKeyPress={(e) => {
@@ -86,7 +86,7 @@ export default function Message() { // Skapar en funktion som heter Message som 
                     }
                   }}
                 />
-                <Button variant="contained" color="primary" onClick={handleSendMessage}> {/* Skapar en knapp för att skicka meddelandet */}
+                <Button variant="contained" color="primary" onClick={handleSendMessage}> 
                   Skicka
                 </Button>
               </Box>
