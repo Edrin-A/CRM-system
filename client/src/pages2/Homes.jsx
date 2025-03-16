@@ -1,5 +1,6 @@
 // homes.jsx är som huvuddashboarden Visar tre informationskort med statistik och
 //Visar företagstabellen i ett stort kort som fyller nedre delen av sidan
+// Importerar nödvändiga Material UI-komponenter för att bygga en stilren tabell
 import React from 'react';
 import Dashboard from '../Components/Dashboard';
 import Navbar from '../Components/Navbar';  // Importera Navbar-komponenten 
@@ -19,8 +20,10 @@ export default function Homes() {
       <div className='background-hela-sidan'>
         <Navbar />    
         <Box height={70}/>
+        {/* Skapar en flexbox-container för sidlayout*/}
         <Box sx={{ display: 'flex' }}>
           <Dashboard />
+           {/* Huvudinnehållsområde som växer för att fylla tillgängligt utrymme */}
           <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} md={4}>
