@@ -21,8 +21,10 @@ export default function Analys() {
     <div className='background-hela-sidan'>
      <Navbar />    
       <Box height={70}/>
+      {/* Skapar en flexbox-container för sidlayout*/}
     <Box sx={{ display: 'flex' }}>
       <Dashboard />
+      {/* Huvudinnehållsområde som växer för att fylla tillgängligt utrymme med 3 enheters padding*/}
    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
        <Grid container spacing={2}>
             <Grid item xs={8}>

@@ -124,6 +124,7 @@ export default function Admin() {
   // Returnerar JSX för att rendera komponenten
   return (
     <div className='homeWrapper'>
+      {/* här så anropar den handleSubmit-funktionen när det skickas in*/}
       <form onSubmit={handleSubmit} className='formWrapper'>
         <div className='Logo-Layout'>
           <img src={Shape} alt='Shape' />
@@ -144,6 +145,7 @@ export default function Admin() {
                 id='username'
                 placeholder='Skriv användarnamn...'
                 value={username}
+                // Uppdaterar username-variabeln automatiskt när användaren skriver i textfältet
                 onChange={(e) => setUsername(e.target.value)}
                 required
               />
