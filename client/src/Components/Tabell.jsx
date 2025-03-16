@@ -10,8 +10,8 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 
 const rows = [
-  { id: 1, name: 'Company A', active: 'Yes', industry: 'Technology' },
-  { id: 2, name: 'Company B', active: 'No', industry: 'Finance' },
+  { id: 1, name: 'Godisfabriken AB', active: 'Yes', industry: 'Godis' },
+  { id: 2, name: 'Sport AB', active: 'Yes', industry: 'Sport' },
   { id: 3, name: 'Company C', active: 'Yes', industry: 'Healthcare' },
   { id: 4, name: 'Company D', active: 'No', industry: 'Retail' },
   { id: 5, name: 'Company E', active: 'Yes', industry: 'Education' },
