@@ -17,7 +17,6 @@ import Dashboard from './Components/Dashboard'
 import Homes from './pages2/Homes'
 import Arenden from './pages2/Arenden'
 import Analys from './pages2/Analys'
-import Message from './pages2/Message'
 
 
 // för routes som kräver inloggning men inte en specifik roll använder vi bara <ProtectedRoute> utan att ange requiredRole
@@ -53,11 +52,6 @@ function App() {
         <Route path="/analys" element={
           <ProtectedRoute requiredRole="SUPPORT">
             <Analys />
-          </ProtectedRoute>
-        } />
-        <Route path="/message" element={
-          <ProtectedRoute requiredRole="SUPPORT">
-            <Message />
           </ProtectedRoute>
         } />
         <Route path="/password" element={

@@ -12,8 +12,8 @@ export default function Arenden() {
     console.log('Tickets:', tickets);  // detta hjälper oss att se om data hämtas
   }, [tickets]);
 
-  // Denna useEffect körs endast en gång när komponenten monteras (tom beroendelista [])
-  // Hämtar ärendedata direkt när sidan laddas
+
+  // hämtar ärendedata direkt när sidan laddas
   useEffect(() => {
     fetchTickets();
   }, []);

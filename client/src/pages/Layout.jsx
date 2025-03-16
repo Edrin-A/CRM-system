@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import Button from '../Components/button';
-import '../index.css'; // Importera index.css för att använda de uppdaterade stilarna
-import Shape from '../assets/Shape.png'; // Lägg till denna import
+import '../index.css';
+import Shape from '../assets/Shape.png';
 
 export default function Layout() {
   const navigate = useNavigate();

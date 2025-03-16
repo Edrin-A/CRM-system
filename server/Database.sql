@@ -70,8 +70,8 @@ CREATE TABLE feedback (
 );
 
 INSERT INTO users (username, password, email, role) VALUES ('admin', 'admin', 'admin@test.com', 'ADMIN');
-INSERT INTO users (username, password, email, role) VALUES ('support1', 'support1', 'support1@test.com', 'SUPPORT');
-INSERT INTO users (username, password, email, role) VALUES ('support2', 'support2', 'support2@test.com', 'SUPPORT');
+INSERT INTO users (username, password, email, role, company_id) VALUES ('support1', 'support1', 'support1@test.com', 'SUPPORT', 1);
+INSERT INTO users (username, password, email, role, company_id) VALUES ('support2', 'support2', 'support2@test.com', 'SUPPORT', 2);
 INSERT INTO users (username, password, email, role) VALUES ('user', 'user', 'user@test.com', 'USER');
 
 
@@ -106,11 +106,3 @@ INSERT INTO products (name, description, company_id) VALUES
  (SELECT id FROM companies WHERE name = 'Sport AB')),
 ('Adidas sneakers', 'Sneakers med stil',
  (SELECT id FROM companies WHERE name = 'Sport AB'));
-
-
-ALTER TABLE users
-ADD COLUMN company_id INTEGER REFERENCES companies(id) NULL;
-
-UPDATE users
-SET company_id = (SELECT id FROM companies WHERE name = 'Godisfabriken AB')
-WHERE username = 'support1' AND role = 'SUPPORT';
