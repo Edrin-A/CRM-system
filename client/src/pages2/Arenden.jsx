@@ -7,12 +7,13 @@ import '../index.css'; // Importera den nya CSS-filen
 export default function Arenden() {
   const { tickets, fetchTickets } = useContext(GlobalContext);
 
-  //  denna useEffect för att se vad som händer
+  // denna useEffect övervakar tickets och uppdaterar varje gång den ändras
   useEffect(() => {
     console.log('Tickets:', tickets);  // detta hjälper oss att se om data hämtas
   }, [tickets]);
 
-  // denna useEffect för att säkerställa att tickets hämtas
+  // Denna useEffect körs endast en gång när komponenten monteras (tom beroendelista [])
+  // Hämtar ärendedata direkt när sidan laddas
   useEffect(() => {
     fetchTickets();
   }, []);
