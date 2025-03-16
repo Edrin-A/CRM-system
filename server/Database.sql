@@ -1,11 +1,17 @@
 -- Kör denna om "gen_random_uuid()" ÄR RÖD MARKERAD FÖR DIG och byta ut till "uuid_generate_v4()" (detta är helt beroende på vilken version av postgres du har)
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Skapa enum för roller
 create type role as enum ('USER', 'ADMIN', 'SUPPORT');
 
 -- Skapa enum för ticket status
 create type ticket_status as enum ('NY', 'PÅGÅENDE', 'LÖST', 'STÄNGD');
+
+CREATE TABLE companies (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    domain VARCHAR(255) UNIQUE 
+);
 
 
 CREATE TABLE users (
@@ -25,12 +31,6 @@ CREATE TABLE customer_profiles (
     lastname VARCHAR(255),
     phone VARCHAR(50),
     adress VARCHAR(255)
-);
-
-CREATE TABLE companies (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    domain VARCHAR(255) UNIQUE 
 );
 
 CREATE TABLE products (
@@ -69,15 +69,15 @@ CREATE TABLE feedback (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT INTO companies (name, domain) VALUES
+('Godisfabriken AB', 'godisfabriken.se'),
+('Sport AB', 'sportab.se');
+
+
 INSERT INTO users (username, password, email, role) VALUES ('admin', 'admin', 'admin@test.com', 'ADMIN');
 INSERT INTO users (username, password, email, role, company_id) VALUES ('support1', 'support1', 'support1@test.com', 'SUPPORT', 1);
 INSERT INTO users (username, password, email, role, company_id) VALUES ('support2', 'support2', 'support2@test.com', 'SUPPORT', 2);
 INSERT INTO users (username, password, email, role) VALUES ('user', 'user', 'user@test.com', 'USER');
-
-
-INSERT INTO companies (name, domain) VALUES
-('Godisfabriken AB', 'godisfabriken.se'),
-('Sport AB', 'sportab.se');
 
 
 -- Lägg till produkter för Godisfabriken AB
