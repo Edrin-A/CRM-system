@@ -485,6 +485,7 @@ app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) => // 
     cmd.Parameters.AddWithValue("@password", admin.Password);
     cmd.Parameters.AddWithValue("@email", admin.Email);
     cmd.Parameters.AddWithValue("@role", admin.Role); // Konverterar rolltexten till databastypen "role" för att säkerställa giltigt värde
+    cmd.Parameters.AddWithValue("@companyId", admin.CompanyId); // Lägger till company_id-parametern
     await cmd.ExecuteNonQueryAsync();
 
     return Results.Ok(new { message = "Support user created." });
