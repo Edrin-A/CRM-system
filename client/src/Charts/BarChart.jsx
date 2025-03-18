@@ -36,9 +36,6 @@ function BarChart() {
         // Hämta antalet registrerade användare
         const registeredResponse = await axios.get('/api/statistics/user-counts');
         
-        // För enkelhets skull simulerar vi aktiva användare här
-        // I verkligheten skulle du göra ett till API-anrop för att hämta aktiva användare
-        // t.ex: const activeResponse = await axios.get('/api/statistics/active-users');
         
         // Konvertera API-svaret till Google Charts format
         const formattedData = [

@@ -471,7 +471,7 @@ app.MapPost("/api/Newpassword", async (PasswordRequest request, NpgsqlDataSource
   }
 }).RequireRole(Role.SUPPORT);
 
-// denhär koden Skapar  api-som tar emot data för att skapa nya användare
+// denhär koden Skapar  api-som tar emot data för att skapa nya support 
 // När någon skickar data hit körs koden nedan för att spara användaren i databasen
 app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) => // Tar emot användardata 
 {
@@ -498,13 +498,15 @@ app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) => // 
   }
 }).RequireRole(Role.ADMIN);
 
-// API endpoint för användarstatistik - Antal användare per roll
+// API endpoint för användarstatistik - Returnerar antalet användare per roll
 app.MapGet("/api/statistics/user-counts", async (NpgsqlDataSource db) =>
 {
   try
   {
+    // Dictionary för att lagra roll (nyckel) och antal användare (värde)
     var result = new Dictionary<string, int>();
 
+    // Hämta antal användare per roll från databasen
     await using var cmd = db.CreateCommand(@"
             SELECT role::text, COUNT(*) 
             FROM users 
@@ -513,6 +515,7 @@ app.MapGet("/api/statistics/user-counts", async (NpgsqlDataSource db) =>
     await using var reader = await cmd.ExecuteReaderAsync();
     while (await reader.ReadAsync())
     {
+      // Lägg till varje roll och dess antal i resultatet
       string role = reader.GetString(0);
       int count = reader.GetInt32(1);
       result[role] = count;
@@ -523,6 +526,54 @@ app.MapGet("/api/statistics/user-counts", async (NpgsqlDataSource db) =>
   catch (Exception ex)
   {
     Console.WriteLine("Error fetching user statistics: " + ex.Message);
+    return Results.Problem($"Internal server error: {ex.Message}");
+  }
+});
+
+// API endpoint för registrerade kunder
+app.MapGet("/api/statistics/dashboard", async (NpgsqlDataSource db) =>
+{
+  try
+  {
+    // Hämta totalt antal kunder från customer_profiles
+    await using var totalCmd = db.CreateCommand(@"
+            SELECT COUNT(*) FROM customer_profiles;");
+    var totalCustomers = Convert.ToInt32(await totalCmd.ExecuteScalarAsync() ?? 0);
+
+    // Hämta antal kunder som har registrerats idag
+    await using var todayCmd = db.CreateCommand(@"
+            SELECT COUNT(*) FROM customer_profiles 
+            WHERE DATE(created_at) = CURRENT_DATE;");
+    var customersToday = Convert.ToInt32(await todayCmd.ExecuteScalarAsync() ?? 0);
+
+    // Hämta aktiva användare (besökt sidan senaste timmen)
+    await using var activeCmd = db.CreateCommand(@"
+            SELECT COUNT(*) FROM (
+              SELECT customer_profile_id 
+              FROM tickets 
+              WHERE updated_at > NOW() - INTERVAL '1 hour'
+              UNION
+              SELECT customer_profile_id 
+              FROM tickets 
+              WHERE id IN (
+                SELECT ticket_id 
+                FROM messages 
+                WHERE created_at > NOW() - INTERVAL '1 hour'
+              )
+            ) as active_users;");
+    var activeNow = Convert.ToInt32(await activeCmd.ExecuteScalarAsync() ?? 0);
+
+    // Returnera all statistik i ett objekt
+    return Results.Ok(new
+    {
+      totalCustomers,
+      customersToday,
+      activeNow
+    });
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error fetching dashboard statistics: " + ex.Message);
     return Results.Problem($"Internal server error: {ex.Message}");
   }
 });
