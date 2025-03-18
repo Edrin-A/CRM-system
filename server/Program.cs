@@ -5,6 +5,7 @@ using server.Classes;
 using server.Services;
 using server.Config;
 using server.Extensions;
+using Microsoft.AspNetCore.Mvc;
 
 // skapar en ny ASP.NET Core applikation
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +23,7 @@ builder.Services.AddSession(options =>
 Database database = new Database();
 NpgsqlDataSource db = database.Connection();
 builder.Services.AddSingleton(db);
-
+builder.Services.AddSingleton(database);  // Lägg till denna rad för att registrera Database-klassen
 
 // Mailkit
 // e-posttjänst för att skicka bekräftelser och välkomstmeddelanden
@@ -470,7 +471,7 @@ app.MapPost("/api/Newpassword", async (PasswordRequest request, NpgsqlDataSource
   }
 }).RequireRole(Role.SUPPORT);
 
-// denhär koden Skapar  api- som tar emot data för att skapa nya användare
+// denhär koden Skapar  api-som tar emot data för att skapa nya användare
 // När någon skickar data hit körs koden nedan för att spara användaren i databasen
 app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) => // Tar emot användardata 
 {
@@ -496,5 +497,34 @@ app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) => // 
     return Results.BadRequest(new { message = ex.Message });
   }
 }).RequireRole(Role.ADMIN);
+
+// API endpoint för användarstatistik - Antal användare per roll
+app.MapGet("/api/statistics/user-counts", async (NpgsqlDataSource db) =>
+{
+  try
+  {
+    var result = new Dictionary<string, int>();
+
+    await using var cmd = db.CreateCommand(@"
+            SELECT role::text, COUNT(*) 
+            FROM users 
+            GROUP BY role;");
+
+    await using var reader = await cmd.ExecuteReaderAsync();
+    while (await reader.ReadAsync())
+    {
+      string role = reader.GetString(0);
+      int count = reader.GetInt32(1);
+      result[role] = count;
+    }
+
+    return Results.Ok(result);
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error fetching user statistics: " + ex.Message);
+    return Results.Problem($"Internal server error: {ex.Message}");
+  }
+});
 
 await app.RunAsync();

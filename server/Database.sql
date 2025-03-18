@@ -106,3 +106,7 @@ INSERT INTO products (name, description, company_id) VALUES
  (SELECT id FROM companies WHERE name = 'Sport AB')),
 ('Adidas sneakers', 'Sneakers med stil',
  (SELECT id FROM companies WHERE name = 'Sport AB'));
+
+  SELECT role::text, COUNT(*)
+                FROM users
+                GROUP BY role;
