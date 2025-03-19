@@ -497,4 +497,232 @@ app.MapPost("/api/admin", async (AdminRequest admin, NpgsqlDataSource db) => // 
   }
 }).RequireRole(Role.ADMIN);
 
+
+
+// Hämta alla supportanvändare
+app.MapGet("/api/support-users", async (NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+      SELECT 
+        u.id, 
+        u.username, 
+        u.email, 
+        u.company_id
+      FROM users u
+      WHERE u.role = 'SUPPORT'
+      ORDER BY u.username");
+
+    var users = new List<Dictionary<string, object>>();
+    await using var reader = await cmd.ExecuteReaderAsync();
+
+    while (await reader.ReadAsync())
+    {
+      users.Add(new Dictionary<string, object>
+      {
+        { "id", reader.GetInt32(0) },
+        { "username", reader.GetString(1) },
+        { "email", reader.GetString(2) },
+        { "company_id", reader.GetInt32(3) }
+      });
+    }
+
+    return Results.Ok(users);
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error fetching support users: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+}).RequireRole(Role.ADMIN);
+
+// Uppdatera en supportanvändare
+app.MapPut("/api/support-users/{id}", async (int id, UserUpdateRequest request, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+      UPDATE users 
+      SET 
+        username = @username, 
+        email = @email, 
+        company_id = @companyId
+      WHERE id = @id AND role = 'SUPPORT'
+      RETURNING 
+        id, 
+        username, 
+        email, 
+        company_id");
+
+    cmd.Parameters.AddWithValue("@id", id);
+    cmd.Parameters.AddWithValue("@username", request.Username);
+    cmd.Parameters.AddWithValue("@email", request.Email);
+    cmd.Parameters.AddWithValue("@companyId", request.CompanyId);
+
+    // Kolla om användaren existerar och uppdatera den
+    await using var reader = await cmd.ExecuteReaderAsync();
+    if (await reader.ReadAsync())
+    {
+      var user = new Dictionary<string, object>
+      {
+        { "id", reader.GetInt32(0) },
+        { "username", reader.GetString(1) },
+        { "email", reader.GetString(2) },
+        { "company_id", reader.GetInt32(3) }
+      };
+
+      return Results.Ok(user);
+    }
+    else
+    {
+      return Results.NotFound(new { message = "Användaren hittades inte" });
+    }
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error updating support user: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+}).RequireRole(Role.ADMIN);
+
+// Ta bort en supportanvändare
+app.MapDelete("/api/support-users/{id}", async (int id, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+      DELETE FROM users 
+      WHERE id = @id AND role = 'SUPPORT'
+      RETURNING id");
+
+    cmd.Parameters.AddWithValue("@id", id);
+
+    await using var reader = await cmd.ExecuteReaderAsync();
+    if (await reader.ReadAsync())
+    {
+      return Results.Ok(new { message = "Användaren har tagits bort" });
+    }
+    else
+    {
+      return Results.NotFound(new { message = "Användaren hittades inte" });
+    }
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error deleting support user: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+}).RequireRole(Role.ADMIN);
+
+// Lägga till en ny produkt för ett företag
+app.MapPost("/api/companies/{companyId}/products", async (int companyId, ProductRequest request, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+      INSERT INTO products (name, description, company_id)
+      VALUES (@name, @description, @companyId)
+      RETURNING id, name, description");
+
+    cmd.Parameters.AddWithValue("@name", request.Name);
+    cmd.Parameters.AddWithValue("@description", request.Description);
+    cmd.Parameters.AddWithValue("@companyId", companyId);
+
+    await using var reader = await cmd.ExecuteReaderAsync();
+    if (await reader.ReadAsync())
+    {
+      var product = new Dictionary<string, object>
+      {
+        { "id", reader.GetInt32(0) },
+        { "name", reader.GetString(1) },
+        { "description", reader.GetString(2) }
+      };
+
+      return Results.Ok(product);
+    }
+    else
+    {
+      return Results.BadRequest(new { message = "Kunde inte lägga till produkt" });
+    }
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error adding product: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+}).RequireRole(Role.ADMIN);
+
+// Uppdatera en produkt
+app.MapPut("/api/companies/{companyId}/products/{productId}", async (int companyId, int productId, ProductRequest request, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+      UPDATE products 
+      SET name = @name, description = @description
+      WHERE id = @productId AND company_id = @companyId
+      RETURNING id, name, description");
+
+    cmd.Parameters.AddWithValue("@productId", productId);
+    cmd.Parameters.AddWithValue("@companyId", companyId);
+    cmd.Parameters.AddWithValue("@name", request.Name);
+    cmd.Parameters.AddWithValue("@description", request.Description);
+
+    await using var reader = await cmd.ExecuteReaderAsync();
+    if (await reader.ReadAsync())
+    {
+      var product = new Dictionary<string, object>
+      {
+        { "id", reader.GetInt32(0) },
+        { "name", reader.GetString(1) },
+        { "description", reader.GetString(2) }
+      };
+
+      return Results.Ok(product);
+    }
+    else
+    {
+      return Results.NotFound(new { message = "Produkten hittades inte" });
+    }
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error updating product: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+}).RequireRole(Role.ADMIN);
+
+// Ta bort en produkt
+app.MapDelete("/api/companies/{companyId}/products/{productId}", async (int companyId, int productId, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+      DELETE FROM products 
+      WHERE id = @productId AND company_id = @companyId
+      RETURNING id");
+
+    cmd.Parameters.AddWithValue("@productId", productId);
+    cmd.Parameters.AddWithValue("@companyId", companyId);
+
+    await using var reader = await cmd.ExecuteReaderAsync();
+    if (await reader.ReadAsync())
+    {
+      return Results.Ok(new { message = "Produkten har tagits bort" });
+    }
+    else
+    {
+      return Results.NotFound(new { message = "Produkten hittades inte" });
+    }
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error deleting product: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+}).RequireRole(Role.ADMIN);
+
+
+
 await app.RunAsync();
