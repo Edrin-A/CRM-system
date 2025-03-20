@@ -593,6 +593,7 @@ textarea {
   }
 }
 
+
 /* Statusfilter */
 .status-filter-container {
   display: flex;
@@ -611,4 +612,118 @@ textarea {
   border-radius: 4px;
   background-color: white;
   font-size: 0.875rem;
+}
+/* Centrerad knapp-container */
+.centered-button-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Centrerad tillbaka-knapp, ärver från BackButton-Layout */
+.BackButton-Centered {
+  background-color: #616161;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.BackButton-Centered:hover {
+  background-color: #424242;
+}
+
+/* Feedback-formulärsstil */
+.feedback-form {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.feedback-form h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.rating-container {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 10px;
+}
+
+.rating-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  background: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rating-btn:hover {
+  border-color: #1976d2;
+  transform: scale(1.1);
+}
+
+.rating-btn.selected {
+  background-color: #1976d2;
+  color: white;
+  border-color: #1976d2;
+}
+
+.feedback-comment {
+  margin-bottom: 20px;
+}
+
+.feedback-comment label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.feedback-comment textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.submit-feedback-btn {
+  background-color: #1976d2;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.submit-feedback-btn:hover {
+  background-color: #1565c0;
+}
+
+.feedback-thanks {
+  text-align: center;
+  padding: 30px;
+  background-color: #e8f5e9;
+  border-radius: 8px;
+}
+
+.ticket-closed-banner {
+  background-color: #ffebee;
+  color: #c62828;
+  text-align: center;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
 }

@@ -17,7 +17,8 @@ import Dashboard from './Components/Dashboard'
 import Homes from './pages2/Homes'
 import Arenden from './pages2/Arenden'
 import Analys from './pages2/Analys'
-
+import Firstpage from './pages/Firstpage'
+import Layout2 from './pages/Layout2'
 
 // för routes som kräver inloggning men inte en specifik roll använder vi bara <ProtectedRoute> utan att ange requiredRole
 function App() {
@@ -25,7 +26,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         {/* Öppna routes, tillgängliga för alla */}
-        <Route path="/" element={<Layout />} />
+        <Route path="/" element={<Firstpage />} />
+        <Route path="/godisfabrikenab" element={<Layout />} />
+        <Route path="/sportab" element={<Layout2 />} />
         <Route path="/home" element={<Home />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/signup" element={<Signup />} />
