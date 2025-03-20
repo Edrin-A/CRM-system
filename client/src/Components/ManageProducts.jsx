@@ -4,10 +4,14 @@ import Shape from '../assets/Shape.png';
 
 export default function ManageProducts({ goBackToMenu }) {
   const [companies, setCompanies] = useState([]);
-  const [selectedCompanyId, setSelectedCompanyId] = useState("");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+
+
+  // Nytt state för att spara admin-användarens företags-ID
+  const [adminCompanyId, setAdminCompanyId] = useState(null);
 
   // State för att hantera nytt produktformulär
   const [isAddingProduct, setIsAddingProduct] = useState(false);
@@ -19,40 +23,52 @@ export default function ManageProducts({ goBackToMenu }) {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
-  // Hämta företag när komponenten laddas
+  // Hämta admin-användarens företags-ID och företagsinformation när komponenten laddas
   useEffect(() => {
-    async function fetchCompanies() {
+    async function fetchAdminCompany() {
       try {
-        const response = await fetch('/api/companies');
-        if (response.ok) {
-          const data = await response.json();
-          setCompanies(data);
-          if (data.length > 0) {
-            setSelectedCompanyId(data[0].id.toString());
+        // Hämta inloggad användare
+        const userResponse = await fetch('/api/login');
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+
+          // Hämta admin-användarens företags-ID
+          const userDetailsResponse = await fetch('/api/users/' + userData.id);
+          if (userDetailsResponse.ok) {
+            const userDetails = await userDetailsResponse.json();
+            setAdminCompanyId(userDetails.company_id);
+
+            // Hämta bara admin-användarens företag
+            const companiesResponse = await fetch('/api/companies');
+            if (companiesResponse.ok) {
+              const companiesData = await companiesResponse.json();
+              // Filtrera för att bara visa admin-användarens företag
+              const adminCompany = companiesData.filter(c => c.id === userDetails.company_id);
+              setCompanies(adminCompany);
+            }
           }
         }
       } catch (error) {
-        console.error('Error fetching companies:', error);
-        setError('Kunde inte hämta företag');
+        console.error('Error fetching admin company:', error);
+        setError('Kunde inte hämta företagsinformation');
       } finally {
         setLoading(false);
       }
     }
 
-    fetchCompanies();
+    fetchAdminCompany();
   }, []);
 
-  // Hämta produkter när ett företag väljs
+  // Hämta produkter när admin-användarens företags-ID ändras
   useEffect(() => {
-    if (!selectedCompanyId) {
-      setProducts([]);
+    if (!adminCompanyId) {
       return;
     }
 
     async function fetchProducts() {
       setLoading(true);
       try {
-        const response = await fetch(`/api/companies/${selectedCompanyId}/products`);
+        const response = await fetch(`/api/companies/${adminCompanyId}/products`);
         if (response.ok) {
           const data = await response.json();
           setProducts(data);
@@ -68,14 +84,22 @@ export default function ManageProducts({ goBackToMenu }) {
     }
 
     fetchProducts();
-  }, [selectedCompanyId]);
+  }, [adminCompanyId]);
+
+  // Hitta företagsnamn baserat på admin-användarens företags-ID
+  const getCompanyName = () => {
+    if (companies.length > 0) {
+      return companies[0].name;
+    }
+    return 'Ditt företag';
+  };
 
   // Funktion för att lägga till en ny produkt
   const handleAddProduct = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`/api/companies/${selectedCompanyId}/products`, {
+      const response = await fetch(`/api/companies/${adminCompanyId}/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,7 +144,7 @@ export default function ManageProducts({ goBackToMenu }) {
   // Funktion för att spara redigerad produkt
   const handleEditSave = async () => {
     try {
-      const response = await fetch(`/api/companies/${selectedCompanyId}/products/${editingProduct.id}`, {
+      const response = await fetch(`/api/companies/${adminCompanyId}/products/${editingProduct.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +178,7 @@ export default function ManageProducts({ goBackToMenu }) {
   const handleDeleteProduct = async (productId) => {
     if (window.confirm('Är du säker på att du vill ta bort denna produkt?')) {
       try {
-        const response = await fetch(`/api/companies/${selectedCompanyId}/products/${productId}`, {
+        const response = await fetch(`/api/companies/${adminCompanyId}/products/${productId}`, {
           method: 'DELETE'
         });
 
@@ -181,26 +205,9 @@ export default function ManageProducts({ goBackToMenu }) {
         Tillbaka till menyn
       </button>
 
-      <h2>Hantera produkter/tjänster</h2>
+      <h2>Hantera produkter/tjänster för {getCompanyName()}</h2>
 
-      {/* Företagsväljare */}
-      <div className='formGroup'>
-        <label htmlFor='companySelect'>Välj företag:</label>
-        <select
-          id='companySelect'
-          value={selectedCompanyId}
-          onChange={(e) => setSelectedCompanyId(e.target.value)}
-        >
-          <option value="">Välj företag</option>
-          {companies.map(company => (
-            <option key={company.id} value={company.id.toString()}>
-              {company.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {selectedCompanyId && (
+      {adminCompanyId && (
         <>
           {/* Lägg till ny produkt-knapp */}
           {!isAddingProduct && (
@@ -298,7 +305,7 @@ export default function ManageProducts({ goBackToMenu }) {
             <p className="error-message">{error}</p>
           ) : (
             <div className="products-list">
-              <h3>Produkter/tjänster</h3>
+              <h3>Produkter/tjänster för {getCompanyName()}</h3>
 
               {products.length === 0 ? (
                 <p>Inga produkter eller tjänster hittades för detta företag.</p>

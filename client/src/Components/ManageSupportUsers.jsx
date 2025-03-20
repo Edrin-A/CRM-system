@@ -7,8 +7,10 @@ export default function ManageSupportUsers({ goBackToMenu }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
-  const [selectedCompanyId, setSelectedCompanyId] = useState("");
   const [companies, setCompanies] = useState([]);
+
+  // Nytt state för att spara admin-användarens företags-ID
+  const [adminCompanyId, setAdminCompanyId] = useState(null);
 
   // Formulärvärden för redigering
   const [username, setUsername] = useState("");
@@ -19,18 +21,39 @@ export default function ManageSupportUsers({ goBackToMenu }) {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Hämta företag
+        // Hämta admin-användarens företags-ID först
+        const userResponse = await fetch('/api/login');
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+
+          // Hämta admin-användarens företags-ID
+          const userDetailsResponse = await fetch('/api/users/' + userData.id);
+          if (userDetailsResponse.ok) {
+            const userDetails = await userDetailsResponse.json();
+            setAdminCompanyId(userDetails.company_id);
+
+            // Sätt companyId för redigering till admin-användarens företags-ID
+            setCompanyId(userDetails.company_id.toString());
+          }
+        }
+
+        // Hämta bara admin-användarens företag
         const companiesResponse = await fetch('/api/companies');
         if (companiesResponse.ok) {
           const companiesData = await companiesResponse.json();
-          setCompanies(companiesData);
+          // Filtrera för att bara visa admin-användarens företag
+          const adminCompany = companiesData.filter(c => c.id === adminCompanyId);
+          setCompanies(adminCompany);
         }
 
-        // Hämta supportanvändare
+        // Hämta supportanvändare för admin-användarens företag
+        // Detta bör filtreras på servern men vi lägger till ett filter här också
         const usersResponse = await fetch('/api/support-users');
         if (usersResponse.ok) {
           const usersData = await usersResponse.json();
-          setSupportUsers(usersData);
+          // Filtrera för att bara visa supportanvändare från admin-användarens företag
+          const filteredUsers = usersData.filter(user => user.company_id === adminCompanyId);
+          setSupportUsers(filteredUsers);
         } else {
           setError('Kunde inte hämta kundtjänstmedarbetare');
         }
@@ -43,7 +66,7 @@ export default function ManageSupportUsers({ goBackToMenu }) {
     }
 
     fetchData();
-  }, []);
+  }, [adminCompanyId]);
 
   // Funktion för att starta redigering av användare
   const handleEdit = (user) => {
@@ -72,7 +95,7 @@ export default function ManageSupportUsers({ goBackToMenu }) {
         body: JSON.stringify({
           Username: username,
           Email: email,
-          CompanyId: parseInt(companyId)
+          CompanyId: adminCompanyId  // Använd alltid admin-användarens företags-ID
         })
       });
 
@@ -115,14 +138,9 @@ export default function ManageSupportUsers({ goBackToMenu }) {
     }
   };
 
-  // Funktion för att filtrera användare baserat på företag
-  const filteredUsers = selectedCompanyId
-    ? supportUsers.filter(user => user.company_id.toString() === selectedCompanyId)
-    : supportUsers;
-
-  // Hitta företagsnamn baserat på ID
-  const getCompanyName = (companyId) => {
-    const company = companies.find(c => c.id === companyId);
+  // Hitta företagsnamn baserat på admin-användarens företags-ID
+  const getCompanyName = () => {
+    const company = companies.find(c => c.id === adminCompanyId);
     return company ? company.name : 'Okänt företag';
   };
 
@@ -136,24 +154,7 @@ export default function ManageSupportUsers({ goBackToMenu }) {
         Tillbaka till menyn
       </button>
 
-      <h2>Hantera kundtjänstmedarbetare</h2>
-
-      {/* Filter för företag */}
-      <div className='formGroup'>
-        <label htmlFor='companyFilter'>Filtrera på företag:</label>
-        <select
-          id='companyFilter'
-          value={selectedCompanyId}
-          onChange={(e) => setSelectedCompanyId(e.target.value)}
-        >
-          <option value="">Alla företag</option>
-          {companies.map(company => (
-            <option key={company.id} value={company.id.toString()}>
-              {company.name}
-            </option>
-          ))}
-        </select>
-      </div>
+      <h2>Hantera kundtjänstmedarbetare för {getCompanyName()}</h2>
 
       {loading ? (
         <p>Laddar kundtjänstmedarbetare...</p>
@@ -161,7 +162,7 @@ export default function ManageSupportUsers({ goBackToMenu }) {
         <p className="error-message">{error}</p>
       ) : (
         <>
-          {/* Redigeringsformulär (visas endast när en användare redigeras) */}
+          {/* Redigeringsformulär */}
           {editingUser && (
             <div className="edit-form">
               <h3>Redigera kundtjänstmedarbetare</h3>
@@ -188,21 +189,8 @@ export default function ManageSupportUsers({ goBackToMenu }) {
                 />
               </div>
 
-              <div className='formGroup'>
-                <label htmlFor='editCompany'>Företag:</label>
-                <select
-                  id='editCompany'
-                  value={companyId}
-                  onChange={(e) => setCompanyId(e.target.value)}
-                  required
-                >
-                  {companies.map(company => (
-                    <option key={company.id} value={company.id.toString()}>
-                      {company.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Ta bort företagsväljare eftersom admin bara kan använda sitt eget företag */}
+              <p>Företag: {getCompanyName()}</p>
 
               <div className="button-group">
                 <button type="button" className="SaveButton-Layout" onClick={handleSaveEdit}>
@@ -219,7 +207,7 @@ export default function ManageSupportUsers({ goBackToMenu }) {
           <div className="users-list">
             <h3>Kundtjänstmedarbetare</h3>
 
-            {filteredUsers.length === 0 ? (
+            {supportUsers.length === 0 ? (
               <p>Inga kundtjänstmedarbetare hittades.</p>
             ) : (
               <table className="admin-table">
@@ -232,11 +220,11 @@ export default function ManageSupportUsers({ goBackToMenu }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredUsers.map(user => (
+                  {supportUsers.map(user => (
                     <tr key={user.id}>
                       <td>{user.username}</td>
                       <td>{user.email}</td>
-                      <td>{getCompanyName(user.company_id)}</td>
+                      <td>{getCompanyName()}</td>
                       <td>
                         <button
                           type="button"

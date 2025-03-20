@@ -14,30 +14,43 @@ export default function AddSupportUser({ goBackToMenu }) {
   const [companies, setCompanies] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
+  // Nytt state för att spara admin-användarens företags-ID
+  const [adminCompanyId, setAdminCompanyId] = useState(null);
+
   // useEffect-hook som körs när komponenten laddas
   useEffect(() => {
-    // har en funktion där jag kan hämta företag från API
-    async function fetchCompanies() {
+    // Funktion för att hämta admin-användarens företags-ID och sedan företagsinformation
+    async function fetchAdminCompanyAndCompanies() {
       try {
-        // anropas api för att hämta företag
-        const response = await fetch('/api/companies');
-        if (response.ok) {
-          // Konverterar svaret till JSON
-          const data = await response.json();
-          // Uppdaterar companies med hämtad data
-          setCompanies(data);
-          // Sätter standardvärde på companyId till första företaget om det finns
-          if (data.length > 0) {
-            setCompanyId(data[0].id);
+        // Hämta inloggad användare
+        const userResponse = await fetch('/api/login');
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+
+          // Hämta admin-användarens företags-ID
+          const userDetailsResponse = await fetch('/api/users/' + userData.id);
+          if (userDetailsResponse.ok) {
+            const userDetails = await userDetailsResponse.json();
+            setAdminCompanyId(userDetails.company_id);
+            setCompanyId(userDetails.company_id); // Sätt companyId till admin-användarens företags-ID
+
+            // Hämta bara admin-användarens företag
+            const companiesResponse = await fetch('/api/companies');
+            if (companiesResponse.ok) {
+              const companiesData = await companiesResponse.json();
+              // Filtrera för att bara visa admin-användarens företag
+              const adminCompany = companiesData.filter(c => c.id === userDetails.company_id);
+              setCompanies(adminCompany);
+            }
           }
         }
       } catch (error) {
         //  Visar fel i konsolen om företagen inte kunde hämtas
-        console.error('Error fetching companies:', error);
+        console.error('Error fetching admin companie:', error);
       }
     }
 
-    fetchCompanies();
+    fetchAdminCompanyAndCompanies();
   }, []);
 
   // Funktion som hanterar formulärinskickning
@@ -45,7 +58,7 @@ export default function AddSupportUser({ goBackToMenu }) {
     // Stoppar sidan från att ladda om när formuläret skickas in
     event.preventDefault();
     try {
-      // Skickar formulärdata till API:et för att skapa en ny användare
+      // Använd alltid admin-användarens företags-ID
       const formResponse = await fetch('/api/admin', {
         method: 'POST',
         headers: {
@@ -56,7 +69,7 @@ export default function AddSupportUser({ goBackToMenu }) {
           Password: password,
           Email: email,
           Role: role,
-          CompanyId: parseInt(companyId) // Konverterar companyId till ett heltal
+          CompanyId: adminCompanyId // Använd admin-användarens företags-ID
         })
       });
 
@@ -113,6 +126,14 @@ export default function AddSupportUser({ goBackToMenu }) {
       alert('Något gick fel vid inskickning av formuläret');
     }
   }
+
+  // Hitta företagsnamn baserat på admin-användarens företags-ID
+  const getCompanyName = () => {
+    if (companies.length > 0) {
+      return companies[0].name;
+    }
+    return 'Ditt företag';
+  };
 
   // Returnerar JSX för att rendera komponenten
   return (
@@ -191,23 +212,10 @@ export default function AddSupportUser({ goBackToMenu }) {
             </select>
           </div>
 
-          {/* Dropdown för företagsval */}
+          {/* Visa företagsnamn istället för dropdown */}
           <div className='formGroup'>
-            <label htmlFor='company'>Företag:</label>
-            <select
-              id='company'
-              value={companyId}
-              onChange={(e) => setCompanyId(e.target.value)}
-              required
-            >
-              <option value=''>Välj företag</option>
-              {/* Dynamiskt genererar alternativ baserat på hämtade företag */}
-              {companies.map(company => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
+            <label>Företag:</label>
+            <p>{getCompanyName()}</p>
           </div>
 
           <button className='SendButton-Layout' type="submit">Skicka in</button>

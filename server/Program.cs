@@ -314,8 +314,8 @@ app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
             JOIN products ON tickets.product_id = products.id
             JOIN companies ON products.company_id = companies.id";
 
-    // Om användaren är support och har ett företag, filtrera tickets baserat på företag
-    if (user.Role == Role.SUPPORT && companyIdResult != null && companyIdResult != DBNull.Value)
+    // filtrera tickets baserat på företag
+    if ((user.Role == Role.SUPPORT || user.Role == Role.ADMIN) && companyIdResult != null && companyIdResult != DBNull.Value)
     {
       query += " WHERE products.company_id = @companyId";
     }
@@ -324,8 +324,8 @@ app.MapGet("/api/tickets", async (NpgsqlDataSource db, HttpContext context) =>
 
     await using var cmd = db.CreateCommand(query);
 
-    // Lägg till parameter om vi filtrerar på företag
-    if (user.Role == Role.SUPPORT && companyIdResult != null && companyIdResult != DBNull.Value)
+    // parameter för filtrering av företag
+    if ((user.Role == Role.SUPPORT || user.Role == Role.ADMIN) && companyIdResult != null && companyIdResult != DBNull.Value)
     {
       cmd.Parameters.AddWithValue("@companyId", companyIdResult);
     }
@@ -723,6 +723,52 @@ app.MapDelete("/api/companies/{companyId}/products/{productId}", async (int comp
   }
 }).RequireRole(Role.ADMIN);
 
+// Hämta användardetaljer inklusive företags-ID
+app.MapGet("/api/users/{id}", async (int id, NpgsqlDataSource db, HttpContext context) =>
+{
+  try
+  {
+    // Kontrollera att användaren är inloggad och har rätt att se informationen
+    var userJson = context.Session.GetString("User");
+    if (userJson == null)
+    {
+      return Results.Unauthorized();
+    }
 
+    var sessionUser = JsonSerializer.Deserialize<User>(userJson);
+
+    // Endast admin eller användaren själv kan se informationen
+    if (sessionUser.Role != Role.ADMIN && sessionUser.Id != id)
+    {
+      return Results.Forbid();
+    }
+
+    await using var cmd = db.CreateCommand(@"
+      SELECT id, username, email, role, company_id 
+      FROM users 
+      WHERE id = @id");
+    cmd.Parameters.AddWithValue("@id", id);
+
+    await using var reader = await cmd.ExecuteReaderAsync();
+    if (await reader.ReadAsync())
+    {
+      return Results.Ok(new
+      {
+        id = reader.GetInt32(0),
+        username = reader.GetString(1),
+        email = reader.GetString(2),
+        role = reader.GetString(3),
+        company_id = reader.GetInt32(4)
+      });
+    }
+
+    return Results.NotFound();
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error fetching user details: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+}).RequireRole(Role.ADMIN);
 
 await app.RunAsync();
