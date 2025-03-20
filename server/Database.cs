@@ -5,10 +5,10 @@ using Npgsql;
 public class Database
 {
   private readonly string _host = "localhost";
-  private readonly string _port = "5433";
+  private readonly string _port = "5432";
   private readonly string _username = "postgres";
-  private readonly string _password = "ADMIN"; // Ändra till ditt lösenord
-  private readonly string _database = "postgres"; // Nytt databasnamn för CRM-projektet
+  private readonly string _password = "12345"; // Ändra till ditt lösenord
+  private readonly string _database = "crm_db"; // Nytt databasnamn för CRM-projektet
 
 
   private readonly NpgsqlDataSource _connection;
