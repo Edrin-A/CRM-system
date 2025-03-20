@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Dashboard from '../Components/Dashboard';
 import Navbar from '../Components/Navbar';
 import { GlobalContext } from '../GlobalContext';
@@ -6,6 +6,7 @@ import '../index.css'; // Importera den nya CSS-filen
 
 export default function Arenden() {
   const { tickets, fetchTickets } = useContext(GlobalContext);
+  const [statusFilter, setStatusFilter] = useState('ALLA');
 
   // denna useEffect övervakar tickets och uppdaterar varje gång den ändras
   useEffect(() => {
@@ -38,6 +39,11 @@ export default function Arenden() {
     }
   };
 
+  // Filtrera tickets baserat på vald status
+  const filteredTickets = statusFilter === 'ALLA' 
+    ? tickets 
+    : tickets.filter(ticket => ticket.status === statusFilter);
+
   return (
     <>
       <Navbar />
@@ -46,8 +52,23 @@ export default function Arenden() {
         <Dashboard />
         <main className="main-content">
           <h1 className="page-title">Ärenden</h1>
+          <div className="status-filter-container">
+            <div className="filter-container">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="status-filter"
+              >
+                <option value="ALLA">Alla</option>
+                <option value="NY">Ny</option>
+                <option value="PÅGÅENDE">Pågående</option>
+                <option value="LÖST">Löst</option>
+                <option value="STÄNGD">Stängd</option>
+              </select>
+            </div>
+          </div>
           <div className="tickets-container">
-            {tickets.map((ticket) => (
+            {filteredTickets.map((ticket) => (
               <div
                 key={ticket.id}
                 className="ticket-item"
