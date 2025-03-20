@@ -3,28 +3,36 @@ import { useState, useEffect } from 'react';
 import Shape from '../assets/Shape.png';
 
 export default function AddSupportUser({ goBackToMenu }) {
-  // State-variabler för formulärets fält
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("SUPPORT");
+  // State-variabler för formulärets fält med useState-hook
+  const [username, setUsername] = useState(""); // Lagrar användarnamn
+  const [password, setPassword] = useState(""); // Lagrar lösenord
+  const [email, setEmail] = useState(""); // Lagrar email
+  const [role, setRole] = useState("SUPPORT"); // Lagrar användarroll med SUPPORT som standardvärde
+
+  // State-variabler för företagshantering
   const [companyId, setCompanyId] = useState("");
   const [companies, setCompanies] = useState([]);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Hämta företag när komponenten laddas
+  // useEffect-hook som körs när komponenten laddas
   useEffect(() => {
+    // har en funktion där jag kan hämta företag från API
     async function fetchCompanies() {
       try {
+        // anropas api för att hämta företag
         const response = await fetch('/api/companies');
         if (response.ok) {
+          // Konverterar svaret till JSON
           const data = await response.json();
+          // Uppdaterar companies med hämtad data
           setCompanies(data);
+          // Sätter standardvärde på companyId till första företaget om det finns
           if (data.length > 0) {
             setCompanyId(data[0].id);
           }
         }
       } catch (error) {
+        //  Visar fel i konsolen om företagen inte kunde hämtas
         console.error('Error fetching companies:', error);
       }
     }
@@ -32,10 +40,12 @@ export default function AddSupportUser({ goBackToMenu }) {
     fetchCompanies();
   }, []);
 
-  // Hantera formulärinskickning
+  // Funktion som hanterar formulärinskickning
   async function handleSubmit(event) {
+    // Stoppar sidan från att ladda om när formuläret skickas in
     event.preventDefault();
     try {
+      // Skickar formulärdata till API:et för att skapa en ny användare
       const formResponse = await fetch('/api/admin', {
         method: 'POST',
         headers: {
@@ -46,14 +56,16 @@ export default function AddSupportUser({ goBackToMenu }) {
           Password: password,
           Email: email,
           Role: role,
-          CompanyId: parseInt(companyId)
+          CompanyId: parseInt(companyId) // Konverterar companyId till ett heltal
         })
       });
 
       if (formResponse.ok) {
-        const company = companies.find(c => c.id === parseInt(companyId));
-        const companyName = company ? company.name : "";
+        // Hittar företagsnamnet för e-postmeddelandet
+        const company = companies.find(c => c.id === parseInt(companyId)); // Hittar företaget som matchar det valda ID:t
+        const companyName = company ? company.name : ""; // Hämtar företagsnamnet, annars tom text
 
+        // Skickar e-post till den nya användaren
         const emailResponse = await fetch('/api/email', {
           method: 'POST',
           headers: {
@@ -78,26 +90,31 @@ export default function AddSupportUser({ goBackToMenu }) {
           })
         });
 
+        // Om mailet skickades framgångsrikt
         if (emailResponse.ok) {
-          setIsSubmitted(true);
+          setIsSubmitted(true); // Visar bekräftelsemeddelande istället för formuläret
           setUsername("");
           setPassword("");
           setEmail("");
-          setRole("SUPPORT");
+          setRole("SUPPORT"); // Återställer roll till standardvärdet
 
+          // Om det finns minst ett företag i listan
           if (companies.length > 0) {
-            setCompanyId(companies[0].id);
+            setCompanyId(companies[0].id); // Välj automatiskt det första företaget som standard
           } else {
+            // så är det tom ruta
             setCompanyId("");
           }
         }
       }
     } catch (error) {
+      // Hanterar eventuella fel vid inskickning
       console.error('Error:', error);
       alert('Något gick fel vid inskickning av formuläret');
     }
   }
 
+  // Returnerar JSX för att rendera komponenten
   return (
     <form onSubmit={handleSubmit} className='formWrapper'>
       <div className='Logo-Layout'>
@@ -184,6 +201,7 @@ export default function AddSupportUser({ goBackToMenu }) {
               required
             >
               <option value=''>Välj företag</option>
+              {/* Dynamiskt genererar alternativ baserat på hämtade företag */}
               {companies.map(company => (
                 <option key={company.id} value={company.id}>
                   {company.name}
