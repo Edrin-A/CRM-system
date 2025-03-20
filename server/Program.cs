@@ -199,36 +199,73 @@ app.MapPost("/api/form", async (FormRequest form, NpgsqlDataSource db) =>
 
 // hämtar meddelandehistorik för ett specifikt ärende baserat på chat_token
 // används av chattgränssnittet för att visa alla meddelanden i ett ärende
-app.MapGet("/api/messages/{chatToken}", async (string chatToken, NpgsqlDataSource db) =>
+app.MapGet("/api/chat/{chatToken}", async (string chatToken, NpgsqlDataSource db) =>
 {
-  await using var cmd = db.CreateCommand(@"
-        SELECT messages.id, messages.ticket_id, messages.sender_type, messages.message_text, messages.created_at
-        FROM messages
-        JOIN tickets ON tickets.id = messages.ticket_id
-        WHERE tickets.chat_token = @chatToken::uuid
-        ORDER BY messages.created_at"); // behöver konvertera textsträngen till en UUID innan vi jämför den med databasen därför ::uuid
-  cmd.Parameters.AddWithValue("@chatToken", chatToken);
-
-  // skapar en lista för att lagra meddelanden detta behövs för att kunna returnera meddelanden
-  var messages = new List<Dictionary<string, object>>();
-  await using var reader = await cmd.ExecuteReaderAsync();
-  while (await reader.ReadAsync())
+  try
   {
-    messages.Add(new Dictionary<string, object>
-        {
-            { "id", reader.GetInt32(0) },
-            { "ticket_id", reader.GetInt32(1) },
-            { "sender_type", reader.GetString(2) },
-            { "message_text", reader.GetString(3) },
-            { "created_at", reader.GetDateTime(4) }
-        });
+    // Hämta status och id för ärendet
+    await using var ticketCmd = db.CreateCommand(@"
+      SELECT id, status FROM tickets 
+      WHERE chat_token = @chatToken::uuid");
+
+    ticketCmd.Parameters.AddWithValue("@chatToken", chatToken);
+
+    int ticketId = 0;
+    string ticketStatus = "";
+
+    await using var ticketReader = await ticketCmd.ExecuteReaderAsync();
+    if (await ticketReader.ReadAsync())
+    {
+      ticketId = ticketReader.GetInt32(0);
+      ticketStatus = ticketReader.GetString(1);
+    }
+    else
+    {
+      return Results.NotFound();
+    }
+
+    // Hämta meddelanden
+    await using var msgCmd = db.CreateCommand(@"
+      SELECT id, sender_type, message_text, created_at 
+      FROM messages 
+      WHERE ticket_id = @ticketId
+      ORDER BY created_at ASC");
+
+    msgCmd.Parameters.AddWithValue("@ticketId", ticketId);
+
+    List<Dictionary<string, object>> messages = new();
+
+    await using var reader = await msgCmd.ExecuteReaderAsync();
+    while (await reader.ReadAsync())
+    {
+      var message = new Dictionary<string, object>
+      {
+        { "id", reader.GetInt32(0) },
+        { "sender_type", reader.GetString(1) },
+        { "message_text", reader.GetString(2) },
+        { "created_at", reader.GetDateTime(3) }
+      };
+
+      messages.Add(message);
+    }
+
+    return Results.Ok(new
+    {
+      ticket_id = ticketId,
+      ticket_status = ticketStatus,
+      messages = messages
+    });
   }
-  return Results.Ok(messages);
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error fetching messages: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
 });
 
 // lägger till ett nytt meddelande i ett befintligt ärende
 // behöver uppdateras för att hantera olika avsändartyper (USER, SUPPORT, ADMIN)
-app.MapPost("/api/messages/{chatToken}", async (string chatToken, MessageRequest request, NpgsqlDataSource db) =>
+app.MapPost("/api/chat/{chatToken}/message", async (string chatToken, MessageRequest request, NpgsqlDataSource db) =>
 {
   // validera senderType för att säkerställa att det är ett giltigt värde
   // defaultar till USER om inget annat anges för att förhindra felaktiga värden
@@ -238,6 +275,20 @@ app.MapPost("/api/messages/{chatToken}", async (string chatToken, MessageRequest
   if (!Enum.TryParse<Role>(senderType, out _))
   {
     senderType = "USER"; // fallback till USER om ogiltig roll
+  }
+
+  // Kontrollera först om ärendet är stängt
+  await using var statusCmd = db.CreateCommand(@"
+        SELECT status FROM tickets 
+        WHERE chat_token = @chatToken::uuid");
+
+  statusCmd.Parameters.AddWithValue("@chatToken", chatToken);
+  var status = await statusCmd.ExecuteScalarAsync() as string;
+
+  // Om ärendet är stängt, tillåt inte nya meddelanden
+  if (status == "STÄNGD" && senderType == "USER")
+  {
+    return Results.BadRequest(new { message = "Ärendet är stängt. Vänligen lämna feedback istället." });
   }
 
   await using var cmd = db.CreateCommand(@"
@@ -257,21 +308,43 @@ app.MapPatch("/api/tickets/{id}/status", async (int id, TicketStatusUpdate reque
 {
   try
   {
+    // Hämta tidigare status
+    string oldStatus = "";
+    await using var getStatusCmd = db.CreateCommand(@"
+      SELECT status FROM tickets WHERE id = @id");
+    getStatusCmd.Parameters.AddWithValue("@id", id);
+    var result = await getStatusCmd.ExecuteScalarAsync();
+    if (result != null)
+    {
+      oldStatus = result.ToString();
+    }
+
+    // Uppdatera status
     await using var cmd = db.CreateCommand(@"
             UPDATE tickets 
             SET status = @status::ticket_status,
             updated_at = CURRENT_TIMESTAMP
-            WHERE id = @id");
+            WHERE id = @id
+            RETURNING id");
 
     cmd.Parameters.AddWithValue("@id", id);
     cmd.Parameters.AddWithValue("@status", request.Status);
 
-    int rowsAffected = await cmd.ExecuteNonQueryAsync();
+    var ticketId = await cmd.ExecuteScalarAsync();
 
-    // kontrollerar om ärendet finns i databasen
-    if (rowsAffected == 0)
+    if (ticketId == null)
     {
       return Results.NotFound();
+    }
+
+    // Om ärendet stängs, lägg till ett systemmeddelande
+    if (request.Status == "STÄNGD" && oldStatus != "STÄNGD")
+    {
+      await using var msgCmd = db.CreateCommand(@"
+                INSERT INTO messages (ticket_id, sender_type, message_text)
+                VALUES (@ticketId, 'SUPPORT', 'Detta ärende har nu stängts. Vänligen lämna feedback på din upplevelse.')");
+      msgCmd.Parameters.AddWithValue("@ticketId", id);
+      await msgCmd.ExecuteNonQueryAsync();
     }
 
     return Results.Ok();
@@ -852,5 +925,51 @@ app.MapGet("/api/statistics/dashboard", async (NpgsqlDataSource db) =>
   }
 });
 
+// Endpoint för att spara feedback
+app.MapPost("/api/feedback", async (FeedbackForm form, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+            INSERT INTO feedback (ticket_id, rating, comment)
+            VALUES (@ticketId, @rating, @comment)
+            RETURNING id");
+
+    cmd.Parameters.AddWithValue("@ticketId", form.TicketId);
+    cmd.Parameters.AddWithValue("@rating", form.Rating);
+    cmd.Parameters.AddWithValue("@comment", form.Comment);
+
+    var feedbackId = await cmd.ExecuteScalarAsync();
+
+    return Results.Ok(new { id = feedbackId, message = "Tack för din feedback!" });
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error saving feedback: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+});
+
+// Kontrollera om feedback redan har lämnats för ett visst ärende
+app.MapGet("/api/feedback/exists/{ticketId}", async (int ticketId, NpgsqlDataSource db) =>
+{
+  try
+  {
+    await using var cmd = db.CreateCommand(@"
+            SELECT COUNT(*) FROM feedback 
+            WHERE ticket_id = @ticketId");
+
+    cmd.Parameters.AddWithValue("@ticketId", ticketId);
+
+    var count = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+
+    return Results.Ok(new { exists = count > 0 });
+  }
+  catch (Exception ex)
+  {
+    Console.WriteLine("Error checking feedback: " + ex.Message);
+    return Results.BadRequest(new { message = ex.Message });
+  }
+});
 
 await app.RunAsync();
