@@ -10,6 +10,7 @@ public class Database
   private readonly string _password = "12345"; // Ändra till ditt lösenord
   private readonly string _database = "crm_db"; // Nytt databasnamn för CRM-projektet
 
+
   private readonly NpgsqlDataSource _connection;
 
   public NpgsqlDataSource Connection()

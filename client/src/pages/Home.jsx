@@ -1,5 +1,4 @@
-import React from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import Button from '../Components/button';
 import Shape from '../assets/Shape.png';
 import '../index.css'; // Importera index.css för att använda de uppdaterade stilarna
@@ -22,8 +21,8 @@ const Home = () => {
           <img src={Shape} alt='Shape' />
         </div>
         <div className='buttonWrapper-home'>
-          <Button className='SigninButton-home' text="Sign In" onClick={handleOnSignIn} />
-          <Button className='SignupButton' text="Sign Up" onClick={handleOnSignUp} />
+          <Button className='SigninButton-home' text="Logga in" onClick={handleOnSignIn} />
+          <Button className='SignupButton' text="Skapa konto" onClick={handleOnSignUp} />
         </div>
       </div>
     </div>
@@ -31,4 +30,3 @@ const Home = () => {
 };
 
 export default Home;
-
