@@ -6,7 +6,7 @@ import Shape from '../assets/Shape.png';
 
 export default function Layout() {
   const navigate = useNavigate();
-  const [company] = useState("Godisfabriken AB"); // Förinställt till "Godisfabriken AB" och kan inte ändras
+  const [company] = useState("Sport AB"); // Förinställt till "Sport AB" och kan inte ändras
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [subject, setSubject] = useState("");
@@ -16,14 +16,14 @@ export default function Layout() {
   const [products, setProducts] = useState([]);
   const [selectedProductId, setSelectedProductId] = useState("");
   
-  // Konstant företags-ID för Godisfabriken AB
-  const godisfabrikenId = "1"; // Anta att Godisfabriken AB har ID 1, ändra till rätt ID
+  // Konstant företags-ID för Sport AB
+  const sportAbId = "2"; // Anta att Sport AB har ID 2, ändra till rätt ID
 
-  // Hämta produkter för Godisfabriken AB när komponenten laddas
+  // Hämta produkter för Sport AB när komponenten laddas
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch(`/api/companies/${godisfabrikenId}/products`);
+        const response = await fetch(`/api/companies/${sportAbId}/products`);
         if (response.ok) {
           const data = await response.json();
           setProducts(data);
