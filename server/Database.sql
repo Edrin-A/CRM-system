@@ -30,7 +30,8 @@ CREATE TABLE customer_profiles (
     firstname VARCHAR(255),
     lastname VARCHAR(255),
     phone VARCHAR(50),
-    adress VARCHAR(255)
+    adress VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE products (
