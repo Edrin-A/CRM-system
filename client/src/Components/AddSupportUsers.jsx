@@ -142,10 +142,11 @@ export default function AddSupportUser({ goBackToMenu }) {
         <img src={Shape} alt='Shape' />
       </div>
 
-      {/* Tillbaka-knapp */}
-      <button type="button" className="BackButton-Layout" onClick={goBackToMenu}>
-        Tillbaka till menyn
-      </button>
+      <div className="centered-button-container">
+        <button type="button" className="BackButton-Centered" onClick={goBackToMenu}>
+          Tillbaka till menyn
+        </button>
+      </div>
 
       <h2>Lägg till ny kundtjänstmedarbetare</h2>
 

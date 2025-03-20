@@ -201,9 +201,11 @@ export default function ManageProducts({ goBackToMenu }) {
         <img src={Shape} alt='Shape' />
       </div>
 
-      <button type="button" className="BackButton-Layout" onClick={goBackToMenu}>
-        Tillbaka till menyn
-      </button>
+      <div className="centered-button-container">
+        <button type="button" className="BackButton-Centered" onClick={goBackToMenu}>
+          Tillbaka till menyn
+        </button>
+      </div>
 
       <h2>Hantera produkter/tjänster för {getCompanyName()}</h2>
 
