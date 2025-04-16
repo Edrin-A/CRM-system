@@ -40,6 +40,7 @@ export default function Navbar() {
             size="large"
             color="inherit"
             onClick={handleLogout}
+            data-testid="logout-button"
             sx={{
               ml: 2,
               display: user ? 'flex' : 'none'

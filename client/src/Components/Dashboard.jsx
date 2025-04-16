@@ -103,15 +103,15 @@ const getItemTextStyle = (open) => [
 
 // Menyalternativ
 const getMenuItems = (navigate) => [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/homes' },
-  { text: 'Ärenden', icon: <AssignmentIcon />, path: '/arenden' },
-  { text: 'Analys', icon: <AnalyticsIcon />, path: '/analys' },
+  { text: 'Dashboard', icon: <DashboardIcon />, path: '/homes', className: 'dashboard-link' },
+  { text: 'Ärenden', icon: <AssignmentIcon />, path: '/arenden', className: 'arenden-link' },
+  { text: 'Analys', icon: <AnalyticsIcon />, path: '/analys', className: 'analys-link' },
 ];
 
 // Komponent för ett menyalternativ
-const MenuItem = ({ text, icon, path, open, navigate }) => (
+const MenuItem = ({ text, icon, path, open, navigate, className }) => (
   <ListItem disablePadding sx={{ display: 'block' }} onClick={() => navigate(path)}>
-    <ListItemButton sx={getItemButtonStyle(open)}>
+    <ListItemButton sx={getItemButtonStyle(open)} className={className}>
       <ListItemIcon sx={getItemIconStyle(open)}>
         {icon}
       </ListItemIcon>
@@ -148,6 +148,7 @@ export default function Dashboard() {
               path={item.path}
               open={open}
               navigate={navigate}
+              className={item.className}
             />
           ))}
         </List>
@@ -161,6 +162,7 @@ export default function Dashboard() {
             path="/admin"
             open={open}
             navigate={navigate}
+            className="admin-test"
           />
         </List>
 
@@ -171,6 +173,7 @@ export default function Dashboard() {
             path="/Password"
             open={open}
             navigate={navigate}
+            className="password-test"
           />
         </List>
       </Drawer>

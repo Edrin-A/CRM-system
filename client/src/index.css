@@ -63,6 +63,15 @@
   max-width: 300px;
 }
 
+.inputField-lösenord {
+padding: 5px;
+  font-size: 19px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 300px;
+}
+
 .buttonWrapper-home {
   display: flex;
   flex-direction: column;

@@ -38,7 +38,7 @@ export default function Signin() {
           <h1 className='signin-title'>Logga in</h1>
           <form action={login} className='formWrapper'>
             <input type='text' name="username" placeholder='Användarnamn' className='inputField' required />
-            <input type='password' name="password" placeholder='Lösenord' className='inputField' required />
+            <input type='password' name="password" placeholder='Lösenord' className='inputField-lösenord' required />
             <button type="submit" className='SigninButton-signin'>Logga in</button>
           </form>
         </div>

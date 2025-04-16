@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "server\server.csproj", "{EEDF2734-8B3E-451D-8C6A-38259F26DE39}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E2ETesting", "..\E2ETesting-main\E2ETesting.csproj", "{1E26535F-E854-4D3D-B3F4-A9918DC90635}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{EEDF2734-8B3E-451D-8C6A-38259F26DE39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EEDF2734-8B3E-451D-8C6A-38259F26DE39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EEDF2734-8B3E-451D-8C6A-38259F26DE39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E26535F-E854-4D3D-B3F4-A9918DC90635}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E26535F-E854-4D3D-B3F4-A9918DC90635}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E26535F-E854-4D3D-B3F4-A9918DC90635}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E26535F-E854-4D3D-B3F4-A9918DC90635}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
